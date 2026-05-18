@@ -276,129 +276,158 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  background: #fff;
+  background: #f4f4f4;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
+
 .login-box {
   width: 100%;
-  max-width: 360px;
+  max-width: 400px;
+  background: #fff;
+  padding: 40px 40px 32px;
   text-align: center;
+  position: relative;
+  box-shadow: 0 2px 16px rgba(0,0,0,.08);
+}
+
+/* 顶部红色细线 */
+.login-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: #8B1A1A;
 }
 
 .login-logo {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   margin-bottom: 6px;
-  font-family: 'STKaiti', 'KaiTi', serif;
 }
 .login-sub {
   font-size: 12px;
-  color: #bbb;
+  color: #aaa;
   letter-spacing: 2px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
 /* 登录/注册 主切换 */
 .page-tabs {
   display: flex;
   justify-content: center;
-  gap: 0;
-  border-bottom: 1px solid #e8e8e8;
-  margin-bottom: 24px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 28px;
 }
 .page-tab {
-  padding: 8px 28px;
-  font-size: 15px;
-  color: #aaa;
+  padding: 8px 36px;
+  font-size: 16px;
+  color: #bbb;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   transition: color 0.15s;
-  font-weight: 500;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
-.page-tab:hover { color: #555; }
-.page-tab.active { color: #1a1a1a; font-weight: 700; border-bottom-color: #1a1a1a; }
+.page-tab:hover { color: #8B1A1A; }
+.page-tab.active { color: #8B1A1A; font-weight: 700; border-bottom-color: #8B1A1A; }
 
 /* 手机/邮箱 次切换 */
 .method-tabs {
   display: flex;
   justify-content: flex-start;
   gap: 20px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   text-align: left;
 }
 .method-tab {
   font-size: 13px;
-  color: #aaa;
+  color: #bbb;
   cursor: pointer;
-  padding-bottom: 4px;
+  padding-bottom: 3px;
   border-bottom: 1px solid transparent;
   transition: color 0.15s;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
-.method-tab:hover { color: #555; }
+.method-tab:hover { color: #8B1A1A; }
 .method-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
 
-/* 表单 */
+/* 表单 — 下划线风格 */
 .auth-form { text-align: left; }
-.auth-form >>> .el-form-item { margin-bottom: 14px; }
+.auth-form >>> .el-form-item { margin-bottom: 20px; }
 .auth-form >>> .el-input__inner {
-  height: 42px;
-  border-radius: 2px;
-  font-size: 14px;
-  border-color: #e8e8e8;
+  height: 44px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  border-radius: 0;
+  font-size: 15px;
+  background: transparent;
+  padding: 0 4px;
+  color: #1a1a1a;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  box-shadow: none !important;
 }
-.auth-form >>> .el-input__inner:focus { border-color: #333; }
+.auth-form >>> .el-input__inner:focus { border-bottom-color: #8B1A1A; }
+.auth-form >>> .el-input__inner::placeholder {
+  color: #ccc;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+.auth-form >>> .el-input { background: transparent; }
+.auth-form >>> .el-form-item__error { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
 
-.code-row { display: flex; gap: 8px; }
+.code-row { display: flex; gap: 8px; align-items: flex-end; }
 .code-row >>> .el-input { flex: 1; }
 .code-btn {
   flex-shrink: 0;
-  height: 42px;
+  height: 44px;
   padding: 0 14px;
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  border-radius: 2px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #ddd;
   font-size: 12px;
-  color: #555;
+  color: #8B1A1A;
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s, color 0.15s;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  transition: border-color 0.15s;
+  letter-spacing: 1px;
 }
-.code-btn:hover:not(:disabled) { border-color: #333; color: #1a1a1a; }
+.code-btn:hover:not(:disabled) { border-bottom-color: #8B1A1A; }
 .code-btn:disabled { color: #ccc; cursor: not-allowed; }
 
-.agree-check { font-size: 12px; color: #999; }
-.agree-link { color: #555; text-decoration: underline; }
+.agree-check { font-size: 12px; color: #999; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+.agree-check >>> .el-checkbox__label { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 12px; }
+.agree-link { color: #8B1A1A; }
 
 .submit-btn {
   width: 100%;
-  height: 44px;
-  background: #1a1a1a;
+  height: 46px;
+  background: #8B1A1A;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   border: none;
-  border-radius: 2px;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   cursor: pointer;
-  transition: opacity 0.15s;
-  margin-top: 4px;
+  margin-top: 8px;
+  transition: background 0.15s;
 }
-.submit-btn:hover { opacity: 0.75; }
-.submit-btn.loading { opacity: 0.5; cursor: not-allowed; }
+.submit-btn:hover { background: #6e1515; }
+.submit-btn.loading { opacity: 0.55; cursor: not-allowed; }
 
-.switch-tip { margin-top: 14px; font-size: 13px; color: #aaa; text-align: center; }
-.switch-link { color: #333; text-decoration: underline; cursor: pointer; }
+.switch-tip { margin-top: 16px; font-size: 13px; color: #aaa; text-align: center; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+.switch-link { color: #8B1A1A; cursor: pointer; }
 
-.dev-area { margin-top: 20px; text-align: center; }
+.dev-area { margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee; text-align: center; }
 .dev-btn {
   background: none;
   border: none;
   font-size: 12px;
   color: #ccc;
   cursor: pointer;
-  padding: 4px 0;
+  letter-spacing: 1px;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 .dev-btn:hover { color: #888; }
 </style>

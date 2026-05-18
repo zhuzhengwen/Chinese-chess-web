@@ -3,7 +3,6 @@
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">棋谱</h1>
-        <p class="page-desc">收录历代经典象棋古谱，传承千年棋道智慧</p>
       </div>
 
       <!-- 分类标签 -->
@@ -54,29 +53,20 @@
           class="book-card"
           @click="$router.push('/manuals/' + item.id)"
         >
-          <!-- 书脊 -->
-          <div class="book-spine">
-            <span class="spine-cat">{{ item.categoryName || item.category || '谱' }}</span>
+          <!-- 书名签 -->
+          <div class="book-label">
+            <span class="book-title">{{ item.title }}</span>
+            <span class="book-seal" v-if="item.isPremium || item.premium">秘</span>
           </div>
-          <!-- 书面 -->
-          <div class="book-face">
-            <div class="book-vip" v-if="item.isPremium || item.premium">秘</div>
-            <div class="book-title-wrap">
-              <span class="book-title">{{ item.title }}</span>
-            </div>
-            <div class="book-author">{{ item.author || '佚名' }}</div>
-            <div class="book-dynasty">{{ item.dynasty || '' }}</div>
+          <!-- 右侧线装图案 -->
+          <div class="book-deco"></div>
+          <!-- 底部作者+难度 -->
+          <div class="book-meta">
+            <span class="book-author">{{ item.author || '' }}</span>
             <div class="book-diff">
-              <span
-                v-for="n in 5"
-                :key="n"
-                class="diff-dot"
-                :class="{ filled: n <= (item.difficulty || 3) }"
-              ></span>
+              <span v-for="n in 5" :key="n" class="diff-dot" :class="{ filled: n <= (item.difficulty || 3) }"></span>
             </div>
           </div>
-          <!-- 书页边 -->
-          <div class="book-pages"></div>
         </div>
         <div v-if="!list.length" class="empty-tip">暂无棋谱</div>
       </div>
@@ -97,6 +87,7 @@
 
 <script>
 import { manuals as manualsApi } from '../api/index'
+import { MEIHUA_MANUALS } from '../data/meihuapu.js'
 export default {
   name: 'ManualList',
   data() {
@@ -152,20 +143,31 @@ export default {
         this.list = data.list || data.records || (Array.isArray(data) ? data : [])
         this.total = data.total || this.list.length
       } catch (e) {
-        this.list = [
+        const base = [
           { id: 1, title: '橘中秘·出车取士局', dynasty: '明', author: '朱晋桢', difficulty: 3, categoryName: '橘中秘', category: 'cat1' },
-          { id: 2, title: '梅花谱·屏风马对进三兵', dynasty: '清', author: '张乔栋', difficulty: 4, categoryName: '梅花谱', category: 'cat2' },
           { id: 3, title: '适情雅趣·当头炮进三兵', dynasty: '明', author: '颜丙', difficulty: 2, categoryName: '适情雅趣', category: 'cat3', isPremium: true },
           { id: 4, title: '韬略元机·顺炮横车对直车', dynasty: '清', author: '张志', difficulty: 3, categoryName: '韬略元机', category: 'cat4' },
           { id: 5, title: '渊深海阔·仙人指路', dynasty: '清', author: '佚名', difficulty: 4, categoryName: '残局精选', category: 'cat5', isPremium: true },
           { id: 6, title: '七星聚会·马后炮绝杀', dynasty: '古代', author: '佚名', difficulty: 5, categoryName: '残局精选', category: 'cat5', isPremium: true },
           { id: 7, title: '橘中秘·马兵胜单车', dynasty: '明', author: '朱晋桢', difficulty: 2, categoryName: '橘中秘', category: 'cat1' },
-          { id: 8, title: '梅花谱·反宫马布局', dynasty: '清', author: '张乔栋', difficulty: 3, categoryName: '梅花谱', category: 'cat2' },
           { id: 9, title: '适情雅趣·飞象局精要', dynasty: '明', author: '颜丙', difficulty: 2, categoryName: '适情雅趣', category: 'cat3' },
           { id: 10, title: '竹香斋·当头炮正变', dynasty: '清', author: '张志', difficulty: 4, categoryName: '橘中秘', category: 'cat1', isPremium: true },
           { id: 11, title: '韬略元机·五七炮对屏风马', dynasty: '清', author: '颜丙', difficulty: 3, categoryName: '韬略元机', category: 'cat4' },
           { id: 12, title: '渊深海阔·车马炮胜单车', dynasty: '清', author: '佚名', difficulty: 3, categoryName: '残局精选', category: 'cat5' }
         ]
+        const meihua = MEIHUA_MANUALS.map(m => ({
+          id: m.id, title: m.title, dynasty: m.dynasty, author: m.author,
+          difficulty: m.difficulty, categoryName: m.categoryName, category: m.category,
+          isPremium: m.isPremium
+        }))
+        this.list = [...meihua, ...base]
+        if (this.selectedCategory) {
+          this.list = this.list.filter(i => i.category === this.selectedCategory)
+        }
+        if (this.keyword) {
+          const kw = this.keyword.toLowerCase()
+          this.list = this.list.filter(i => i.title.includes(kw) || (i.author || '').includes(kw))
+        }
         this.total = this.list.length
       } finally { this.loading = false }
     },
@@ -187,11 +189,11 @@ export default {
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 
 .page-header { padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: 2px; }
 .page-desc { font-size: 13px; color: #aaa; }
 
 .cat-tabs { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e8e8e8; }
-.cat-tab { padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; font-family: 'STKaiti','KaiTi',serif; }
+.cat-tab { padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
 .cat-tab:hover { color: #333; }
 .cat-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
 
@@ -210,30 +212,107 @@ export default {
 
 .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 24px 20px; }
 
-.book-card { position: relative; width: 130px; height: 185px; cursor: pointer; transition: transform 0.2s; display: flex; }
-.book-card:hover { transform: translateY(-3px); }
-.book-card:hover .book-face { box-shadow: 4px 6px 16px rgba(0,0,0,0.12); }
+/* ── 古书封面 ── */
+/* ── 线装古籍封面 ── */
+.book-card {
+  position: relative;
+  width: 130px;
+  height: 185px;
+  cursor: pointer;
+  background: #1d2e4a;
+  border: 1px solid #162338;
+  overflow: hidden;
+  transition: transform 0.22s, box-shadow 0.22s;
+  box-shadow: 2px 5px 14px rgba(0,0,0,.4);
+}
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 4px 12px 28px rgba(0,0,0,.55);
+}
 
-.book-spine { width: 20px; flex-shrink: 0; background: #2a2a2a; border-radius: 2px 0 0 2px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
-.spine-cat { writing-mode: vertical-rl; font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 1px; font-family: 'STKaiti','KaiTi',serif; }
+/* 书名签 */
+.book-label {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 126px;
+  background: #f5f0e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 4px;
+  overflow: hidden;
+}
+/* 双框线 */
+.book-label::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #b8a06a;
+  pointer-events: none;
+}
 
-.book-face { flex: 1; background: #f8f7f5; border: 1px solid #ddd; border-left: none; border-radius: 0 3px 3px 0; padding: 10px 8px 10px 10px; display: flex; flex-direction: column; box-shadow: 2px 3px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+.book-title {
+  writing-mode: vertical-rl;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1200;
+  letter-spacing: 3px;
+  line-height: 1.3;
+  z-index: 1;
+  max-height: 104px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-.book-vip { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; border-radius: 50%; background: #444; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'STKaiti','KaiTi',serif; }
+/* 秘籍印章 */
+.book-seal {
+  position: absolute;
+  bottom: 7px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #8B1A1A;
+  color: #8B1A1A;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  background: rgba(245,240,226,.85);
+}
 
-.book-title-wrap { flex: 1; display: flex; align-items: flex-start; padding-top: 4px; }
-.book-title { writing-mode: vertical-rl; font-size: 14px; font-weight: 700; color: #222; font-family: 'STKaiti','KaiTi','SimSun',serif; line-height: 1.4; letter-spacing: 1px; max-height: 110px; overflow: hidden; text-overflow: ellipsis; }
+/* 右侧线装图案 */
+.book-deco {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 34px;
+  background:
+    repeating-linear-gradient(45deg,  transparent, transparent 8px, rgba(185,158,80,.5) 8px, rgba(185,158,80,.5) 9px),
+    repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(185,158,80,.5) 8px, rgba(185,158,80,.5) 9px);
+}
 
-.book-author { font-size: 10px; color: #888; font-family: 'STKaiti','KaiTi',serif; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.book-dynasty { font-size: 10px; color: #aaa; font-family: 'STKaiti','KaiTi',serif; margin-bottom: 6px; }
-.book-diff { display: flex; gap: 3px; }
-.diff-dot { width: 5px; height: 5px; border-radius: 50%; background: #e0e0e0; }
-.diff-dot.filled { background: #888; }
-
-.book-pages { position: absolute; right: -4px; top: 3px; bottom: 3px; width: 4px; background: #eee; border-radius: 0 2px 2px 0; }
+/* 作者 + 难度 */
+.book-meta {
+  position: absolute;
+  bottom: 9px;
+  left: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.book-author { font-size: 9px; color: rgba(255,255,255,.3); white-space: nowrap; overflow: hidden; max-width: 44px; text-overflow: ellipsis; }
+.book-diff { display: flex; gap: 2px; }
+.diff-dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.12); }
+.diff-dot.filled { background: rgba(200,140,60,.75); }
 
 .pagination-wrap { display: flex; justify-content: center; margin-top: 40px; }
-.pagination-wrap >>> .el-pagination.is-background .el-pager li.active { background: #333; }
+.pagination-wrap >>> .el-pagination.is-background .el-pager li.active { background: #8B1A1A; }
 
 @media (max-width: 768px) {
   .books-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; }

@@ -7,7 +7,7 @@
         <router-link to="/my-manuals" class="nav-item" active-class="active">我的棋谱</router-link>
         <router-link to="/tournaments" class="nav-item" active-class="active">赛事</router-link>
         <router-link to="/players" class="nav-item" active-class="active">棋手</router-link>
-        <router-link to="/resources" class="nav-item" active-class="active">资源</router-link>
+        <router-link to="/resources" class="nav-item" active-class="active">咨询</router-link>
         <router-link to="/forum" class="nav-item" active-class="active">论坛</router-link>
       </nav>
       <div class="nav-right">
@@ -81,7 +81,7 @@ export default {
   color: #8B1A1A;
   letter-spacing: 2px;
   flex-shrink: 0;
-  font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 .nav-links {
   display: flex;

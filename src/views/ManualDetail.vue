@@ -73,35 +73,35 @@
             <svg class="board-svg" :width="BW" :height="BH" xmlns="http://www.w3.org/2000/svg">
               <!-- 外框 -->
               <rect :x="PAD" :y="PAD" :width="CELL*8" :height="CELL*9"
-                fill="none" stroke="#5c3200" stroke-width="2"/>
+                fill="none" stroke="#cc0000" stroke-width="2"/>
               <!-- 横线 (r=0..9) -->
               <line v-for="r in 10" :key="'h'+r"
                 :x1="PAD" :y1="PAD+(r-1)*CELL"
                 :x2="PAD+CELL*8" :y2="PAD+(r-1)*CELL"
-                stroke="#5c3200" stroke-width="1"/>
+                stroke="#cc0000" stroke-width="1"/>
               <!-- 竖线 左右两侧（全高） -->
-              <line :x1="PAD" :y1="PAD" :x2="PAD" :y2="PAD+CELL*9" stroke="#5c3200" stroke-width="1"/>
-              <line :x1="PAD+CELL*8" :y1="PAD" :x2="PAD+CELL*8" :y2="PAD+CELL*9" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD" :y1="PAD" :x2="PAD" :y2="PAD+CELL*9" stroke="#cc0000" stroke-width="1"/>
+              <line :x1="PAD+CELL*8" :y1="PAD" :x2="PAD+CELL*8" :y2="PAD+CELL*9" stroke="#cc0000" stroke-width="1"/>
               <!-- 竖线 中间 7 条上半（楚河处断开） -->
               <line v-for="c in 7" :key="'vu'+c"
                 :x1="PAD+c*CELL" :y1="PAD" :x2="PAD+c*CELL" :y2="PAD+4*CELL"
-                stroke="#5c3200" stroke-width="1"/>
+                stroke="#cc0000" stroke-width="1"/>
               <!-- 竖线 中间 7 条下半 -->
               <line v-for="c in 7" :key="'vd'+c"
                 :x1="PAD+c*CELL" :y1="PAD+5*CELL" :x2="PAD+c*CELL" :y2="PAD+9*CELL"
-                stroke="#5c3200" stroke-width="1"/>
+                stroke="#cc0000" stroke-width="1"/>
               <!-- 上将宫斜线 -->
-              <line :x1="PAD+3*CELL" :y1="PAD" :x2="PAD+5*CELL" :y2="PAD+2*CELL" stroke="#5c3200" stroke-width="1"/>
-              <line :x1="PAD+5*CELL" :y1="PAD" :x2="PAD+3*CELL" :y2="PAD+2*CELL" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD+3*CELL" :y1="PAD" :x2="PAD+5*CELL" :y2="PAD+2*CELL" stroke="#cc0000" stroke-width="1"/>
+              <line :x1="PAD+5*CELL" :y1="PAD" :x2="PAD+3*CELL" :y2="PAD+2*CELL" stroke="#cc0000" stroke-width="1"/>
               <!-- 下帅宫斜线 -->
-              <line :x1="PAD+3*CELL" :y1="PAD+7*CELL" :x2="PAD+5*CELL" :y2="PAD+9*CELL" stroke="#5c3200" stroke-width="1"/>
-              <line :x1="PAD+5*CELL" :y1="PAD+7*CELL" :x2="PAD+3*CELL" :y2="PAD+9*CELL" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD+3*CELL" :y1="PAD+7*CELL" :x2="PAD+5*CELL" :y2="PAD+9*CELL" stroke="#cc0000" stroke-width="1"/>
+              <line :x1="PAD+5*CELL" :y1="PAD+7*CELL" :x2="PAD+3*CELL" :y2="PAD+9*CELL" stroke="#cc0000" stroke-width="1"/>
               <!-- 楚河汉界 -->
               <text :x="PAD+CELL*1.8" :y="PAD+4*CELL+CELL*0.5+7"
-                font-size="17" fill="#5c3200" font-weight="bold"
+                font-size="17" fill="#cc0000" font-weight="bold"
                 font-family="STKaiti,KaiTi,SimSun,serif" letter-spacing="8">楚  河</text>
               <text :x="PAD+CELL*4.6" :y="PAD+4*CELL+CELL*0.5+7"
-                font-size="17" fill="#5c3200" font-weight="bold"
+                font-size="17" fill="#cc0000" font-weight="bold"
                 font-family="STKaiti,KaiTi,SimSun,serif" letter-spacing="8">漢  界</text>
             </svg>
 
@@ -141,6 +141,7 @@
 <script>
 import { manuals as manualsApi } from '../api/index'
 import { mapGetters } from 'vuex'
+import { MEIHUA_MANUALS } from '../data/meihuapu.js'
 
 const INITIAL_BOARD = [
   ['車','馬','象','士','將','士','象','馬','車'],
@@ -198,14 +199,21 @@ export default {
         if (content) this.parseMoves(content)
         else this.moves = this.getMockMoves()
       } catch (e) {
-        this.manual = {
-          id: this.$route.params.id,
-          title: '橘中秘·炮局第一', dynasty: '明代',
-          author: '朱晋桢', categoryName: '橘中秘', difficulty: 3,
-          description: '《橘中秘》是明代象棋名谱，以炮局为主要战术体系，此局着重展示炮的进攻威力。',
-          isPremium: false
+        const id = Number(this.$route.params.id)
+        const meihua = MEIHUA_MANUALS.find(m => m.id === id)
+        if (meihua) {
+          this.manual = meihua
+          this.moves = meihua.moves
+        } else {
+          this.manual = {
+            id: this.$route.params.id,
+            title: '橘中秘·炮局第一', dynasty: '明代',
+            author: '朱晋桢', categoryName: '橘中秘', difficulty: 3,
+            description: '《橘中秘》是明代象棋名谱，以炮局为主要战术体系，此局着重展示炮的进攻威力。',
+            isPremium: false
+          }
+          this.moves = this.getMockMoves()
         }
-        this.moves = this.getMockMoves()
       } finally { this.loading = false }
     },
     getMockMoves() {
@@ -281,7 +289,7 @@ export default {
 .manual-title {
   font-size: 22px; font-weight: 800; color: #1a1a1a;
   margin-bottom: 10px; line-height: 1.3;
-  font-family: 'STKaiti','KaiTi',serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 .author-row { font-size: 13px; color: #888; margin-bottom: 8px; }
 .diff-row {
@@ -358,17 +366,17 @@ export default {
   text-align: center;
   font-size: 12px;
   color: #8a6030;
-  font-family: 'STKaiti','KaiTi',serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 /* 棋盘容器 */
 .board-wrap {
   position: relative;
   display: inline-block;
-  background: #dcb47a;
-  border: 3px solid #8B5e20;
+  background: #ffffff;
+  border: 2px solid #cc0000;
   border-radius: 2px;
-  box-shadow: 4px 4px 16px rgba(0,0,0,0.3), inset 0 0 40px rgba(160,100,20,0.15);
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.15);
 }
 
 .board-svg { display: block; }
@@ -383,7 +391,7 @@ export default {
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 17px; font-weight: 900;
-  font-family: 'STKaiti','KaiTi','SimSun',serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
   transform: translate(-50%, -50%);
   cursor: pointer;
   pointer-events: all;
@@ -394,24 +402,18 @@ export default {
 
 /* 红方棋子 */
 .red-piece {
-  background: radial-gradient(circle at 38% 32%, #e86060, #9B0a0a);
-  color: #ffe8a0;
-  border: 2px solid #c8901a;
-  box-shadow:
-    0 0 0 3px #f0c040,
-    0 0 0 4px #a86a10,
-    0 3px 8px rgba(0,0,0,0.5);
+  background: #fff;
+  color: #cc0000;
+  border: 2px solid #cc0000;
+  box-shadow: inset 0 0 0 2px #cc0000, 0 1px 3px rgba(0,0,0,.12);
 }
 
 /* 黑方棋子 */
 .black-piece {
-  background: radial-gradient(circle at 38% 32%, #555555, #111111);
-  color: #e8d090;
-  border: 2px solid #a07820;
-  box-shadow:
-    0 0 0 3px #d0a030,
-    0 0 0 4px #806010,
-    0 3px 8px rgba(0,0,0,0.5);
+  background: #fff;
+  color: #111111;
+  border: 2px solid #111111;
+  box-shadow: inset 0 0 0 2px #111111, 0 1px 3px rgba(0,0,0,.12);
 }
 
 /* 操作按钮 */

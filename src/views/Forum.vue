@@ -417,7 +417,7 @@ export default {
 .forum-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
 .page-header { padding: 36px 0 20px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; font-family: 'STKaiti','KaiTi',serif; margin: 0 0 6px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; margin: 0 0 6px; }
 .page-desc { font-size: 13px; color: #aaa; margin: 0; }
 
 .forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0; }

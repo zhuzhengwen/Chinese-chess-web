@@ -4,7 +4,7 @@
       <div class="page-header">
         <div>
           <h1 class="page-title">我的棋谱</h1>
-          <p class="page-desc">记录、整理属于自己的棋局与心得</p>
+
         </div>
         <button class="add-btn" @click="openForm(null)">+ 录入棋谱</button>
       </div>
@@ -35,22 +35,21 @@
           :key="item.id"
           class="book-card"
         >
-          <div class="book-spine">
-            <span class="spine-char">{{ item.title ? item.title.charAt(0) : '谱' }}</span>
+          <!-- 书名签 -->
+          <div class="book-label">
+            <span class="book-title">{{ item.title }}</span>
           </div>
-          <div class="book-face">
-            <div class="book-title-wrap">
-              <span class="book-title">{{ item.title }}</span>
-            </div>
+          <!-- 右侧线装图案 -->
+          <div class="book-deco"></div>
+          <!-- 底部操作 -->
+          <div class="book-meta">
             <div class="book-type-tag">{{ typeLabel(item.type) }}</div>
-            <div class="book-date">{{ formatDate(item.createdAt) }}</div>
             <div class="book-actions">
               <span class="action-btn" @click.stop="openForm(item)">编辑</span>
               <span class="action-sep">·</span>
               <span class="action-btn action-del" @click.stop="confirmDelete(item)">删除</span>
             </div>
           </div>
-          <div class="book-pages"></div>
         </div>
       </div>
     </div>
@@ -221,7 +220,7 @@ export default {
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 
 .page-header { display: flex; align-items: flex-end; justify-content: space-between; padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; letter-spacing: 2px; }
 .page-desc { font-size: 13px; color: #aaa; }
 
 .add-btn { padding: 7px 18px; background: #1a1a1a; color: #fff; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; transition: opacity 0.15s; }
@@ -238,32 +237,29 @@ export default {
 .loading-tip { color: #bbb; font-size: 14px; padding: 60px 0; text-align: center; }
 
 .empty-state { text-align: center; padding: 80px 0; color: #bbb; }
-.empty-icon { width: 56px; height: 56px; border-radius: 4px; background: #f0f0f0; color: #888; font-size: 24px; font-weight: 800; font-family: 'STKaiti','KaiTi',serif; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.empty-icon { width: 56px; height: 56px; border-radius: 4px; background: #f0f0f0; color: #888; font-size: 24px; font-weight: 800; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
 .empty-text { font-size: 14px; margin-bottom: 16px; }
 .add-btn-sm { padding: 6px 16px; background: #1a1a1a; color: #fff; border: none; border-radius: 2px; font-size: 13px; cursor: pointer; }
 
 .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 24px 20px; }
 
-.book-card { position: relative; width: 130px; height: 185px; cursor: pointer; transition: transform 0.2s; display: flex; }
-.book-card:hover { transform: translateY(-3px); }
-.book-card:hover .book-face { box-shadow: 4px 6px 16px rgba(0,0,0,0.12); }
+.book-card { position: relative; width: 130px; height: 185px; cursor: pointer; background: #1d2e4a; border: 1px solid #162338; overflow: hidden; transition: transform 0.22s, box-shadow 0.22s; box-shadow: 2px 5px 14px rgba(0,0,0,.4); }
+.book-card:hover { transform: translateY(-5px); box-shadow: 4px 12px 28px rgba(0,0,0,.55); }
 
-.book-spine { width: 20px; flex-shrink: 0; background: #2a2a2a; border-radius: 2px 0 0 2px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
-.spine-char { font-size: 11px; color: rgba(255,255,255,0.45); font-family: 'STKaiti','KaiTi',serif; }
+.book-label { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 42px; height: 126px; background: #f5f0e2; display: flex; align-items: center; justify-content: center; padding: 6px 4px; overflow: hidden; }
+.book-label::before { content: ''; position: absolute; inset: 4px; border: 1px solid #b8a06a; pointer-events: none; }
 
-.book-face { flex: 1; background: #f8f7f5; border: 1px solid #ddd; border-left: none; border-radius: 0 3px 3px 0; padding: 10px 8px 10px 10px; display: flex; flex-direction: column; box-shadow: 2px 3px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+.book-title { writing-mode: vertical-rl; font-size: 14px; font-weight: 600; color: #1a1200; letter-spacing: 3px; line-height: 1.3; z-index: 1; max-height: 104px; overflow: hidden; text-overflow: ellipsis; }
 
-.book-title-wrap { flex: 1; display: flex; align-items: flex-start; padding-top: 4px; }
-.book-title { writing-mode: vertical-rl; font-size: 13px; font-weight: 700; color: #222; font-family: 'STKaiti','KaiTi','SimSun',serif; line-height: 1.4; letter-spacing: 1px; max-height: 100px; overflow: hidden; text-overflow: ellipsis; }
-.book-type-tag { font-size: 10px; color: #888; border: 1px solid #ddd; padding: 1px 4px; border-radius: 1px; margin-bottom: 4px; display: inline-block; }
-.book-date { font-size: 10px; color: #aaa; margin-bottom: 6px; }
+.book-deco { position: absolute; right: 0; top: 0; bottom: 0; width: 34px; background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(185,158,80,.5) 8px, rgba(185,158,80,.5) 9px), repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(185,158,80,.5) 8px, rgba(185,158,80,.5) 9px); }
+
+.book-meta { position: absolute; bottom: 9px; left: 13px; display: flex; flex-direction: column; gap: 4px; }
+.book-type-tag { font-size: 9px; color: rgba(185,158,80,.9); border: 1px solid rgba(185,158,80,.4); padding: 1px 4px; display: inline-block; background: rgba(0,0,0,.2); }
 .book-actions { display: flex; align-items: center; gap: 2px; }
-.action-btn { font-size: 10px; color: #aaa; cursor: pointer; transition: color 0.1s; }
-.action-btn:hover { color: #333; }
-.action-del:hover { color: #666; }
-.action-sep { font-size: 10px; color: #ddd; }
-
-.book-pages { position: absolute; right: -4px; top: 3px; bottom: 3px; width: 4px; background: #eee; border-radius: 0 2px 2px 0; }
+.action-btn { font-size: 10px; color: rgba(255,255,255,.35); cursor: pointer; transition: color 0.1s; }
+.action-btn:hover { color: rgba(255,255,255,.8); }
+.action-del:hover { color: #e06060; }
+.action-sep { font-size: 10px; color: rgba(255,255,255,.15); }
 
 .manual-form >>> .el-form-item__label { font-size: 13px; color: #555; }
 .manual-form >>> .el-input__inner { border-radius: 2px; font-size: 13px; }

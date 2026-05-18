@@ -3,7 +3,6 @@
     <div class="container">
       <div class="page-header">
         <h1 class="page-title">赛事</h1>
-        <p class="page-desc">历届象棋赛事对局记录，见证棋道荣耀时刻</p>
       </div>
 
       <!-- 年份筛选 -->
@@ -62,7 +61,7 @@
               <span class="col-round">{{ game.round }}</span>
               <span class="col-red">{{ game.redPlayer }}</span>
               <span class="col-result">
-                <span class="result-tag">{{ resultLabel(game.result) }}</span>
+                <span class="result-tag" :class="'result-' + game.result">{{ resultLabel(game.result) }}</span>
               </span>
               <span class="col-black">{{ game.blackPlayer }}</span>
               <span class="col-opening">{{ game.opening }}</span>
@@ -148,53 +147,74 @@ export default {
 </script>
 
 <style scoped>
-.tournament-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
+.tournament-page { background: #f5f6f8; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
-.page-header { padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
-.page-desc { font-size: 13px; color: #aaa; }
+.page-header { padding: 28px 0 20px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; letter-spacing: 2px; }
 
-.year-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid #e8e8e8; flex-wrap: wrap; }
-.year-tab { padding: 7px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
-.year-tab:hover { color: #333; }
-.year-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
+/* 年份筛选 — 胶囊形 */
+.year-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.year-tab { padding: 5px 18px; font-size: 13px; color: #555; cursor: pointer; border-radius: 20px; background: #fff; border: 1px solid #e8e8e8; transition: all 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.year-tab:hover { border-color: #8B1A1A; color: #8B1A1A; }
+.year-tab.active { background: #8B1A1A; color: #fff; border-color: #8B1A1A; font-weight: 600; }
 
-.loading-tip { color: #bbb; font-size: 14px; padding: 60px; text-align: center; }
-.empty-tip { color: #ccc; font-size: 14px; padding: 60px; text-align: center; }
+.loading-tip { color: #bbb; font-size: 14px; padding: 60px; text-align: center; background: #fff; border-radius: 6px; }
+.empty-tip { color: #ccc; font-size: 14px; padding: 60px; text-align: center; background: #fff; border-radius: 6px; }
 
-.tournament-card { border: 1px solid #e8e8e8; border-radius: 4px; background: #fff; margin-bottom: 10px; overflow: hidden; }
+/* 赛事卡片 */
+.tournament-card { background: #fff; margin-bottom: 10px; overflow: hidden; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.06); transition: box-shadow 0.15s; }
+.tournament-card.expanded { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 
-.t-header { display: flex; align-items: center; gap: 16px; padding: 16px 20px; cursor: pointer; transition: background 0.1s; }
-.t-header:hover { background: #f5f5f5; }
+.t-header { display: flex; align-items: center; gap: 16px; padding: 16px 20px; cursor: pointer; transition: background 0.12s; border-left: 3px solid transparent; }
+.t-header:hover { background: #fdf8f8; border-left-color: #e8c8c8; }
+.tournament-card.expanded .t-header { border-left-color: #8B1A1A; background: #fdf8f8; }
 
-.t-seal { width: 44px; height: 44px; border: 1px solid #e8e8e8; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #555; flex-shrink: 0; font-family: 'STKaiti','KaiTi',serif; background: #fafafa; }
+/* 年份印章 */
+.t-seal {
+  width: 48px; height: 48px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #8B1A1A 0%, #6e1515 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0; letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(139,26,26,.3);
+}
 
 .t-info { flex: 1; }
-.t-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
-.t-meta { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #aaa; }
+.t-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 5px; }
+.t-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; flex-wrap: wrap; }
 .t-sep { color: #ddd; }
-.t-date, .t-location { color: #888; }
-.t-count { color: #666; }
+.t-date { color: #888; }
+.t-location { color: #888; }
+.t-count { color: #8B1A1A; font-weight: 500; }
 
-.t-champion { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 12px; border: 1px solid #e8e8e8; border-radius: 2px; background: #fafafa; }
-.champion-label { font-size: 10px; color: #aaa; }
-.champion-name { font-size: 13px; font-weight: 600; color: #333; font-family: 'STKaiti','KaiTi',serif; }
+/* 冠军标签 */
+.t-champion { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; background: linear-gradient(90deg, #fff8e6, #fff3d0); border: 1px solid #f0d080; }
+.champion-label { font-size: 10px; color: #b8860b; }
+.champion-name { font-size: 13px; font-weight: 700; color: #8B6914; }
 
-.t-toggle { font-size: 12px; color: #bbb; flex-shrink: 0; white-space: nowrap; }
+.t-toggle { font-size: 12px; color: #bbb; flex-shrink: 0; white-space: nowrap; transition: color 0.15s; }
+.tournament-card.expanded .t-toggle { color: #8B1A1A; }
 
-.t-games { border-top: 1px solid #f0f0f0; background: #fafafa; }
-.games-head { display: flex; align-items: center; padding: 8px 20px; font-size: 11px; font-weight: 600; color: #bbb; letter-spacing: 0.5px; border-bottom: 1px solid #f0f0f0; }
-.game-row { display: flex; align-items: center; padding: 11px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; transition: background 0.1s; }
+/* 对局展开区 */
+.t-games { border-top: 1px solid #f5f0f0; }
+.games-head { display: flex; align-items: center; padding: 8px 20px; font-size: 11px; font-weight: 600; color: #bbb; letter-spacing: 0.5px; background: #fdf8f8; border-bottom: 1px solid #f5f0f0; }
+.game-row { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #f8f4f4; cursor: pointer; font-size: 13px; transition: background 0.1s; }
 .game-row:last-child { border-bottom: none; }
-.game-row:hover { background: #f0f0f0; }
+.game-row:hover { background: #fdf4f4; }
 
-.col-round { width: 60px; flex-shrink: 0; color: #aaa; font-size: 12px; }
-.col-red { flex: 1; color: #333; font-weight: 500; }
-.col-result { width: 70px; flex-shrink: 0; text-align: center; }
-.col-black { flex: 1; color: #333; font-weight: 500; }
-.col-opening { flex: 1.5; color: #888; font-size: 12px; }
-.col-action { width: 70px; flex-shrink: 0; font-size: 12px; color: #888; text-align: right; }
+.col-round { width: 64px; flex-shrink: 0; color: #aaa; font-size: 12px; }
+.col-red { flex: 1; color: #c0392b; font-weight: 600; }
+.col-result { width: 68px; flex-shrink: 0; text-align: center; }
+.col-black { flex: 1; color: #1a1a1a; font-weight: 600; }
+.col-opening { flex: 1.5; color: #999; font-size: 12px; }
+.col-action { width: 70px; flex-shrink: 0; font-size: 12px; color: #8B1A1A; text-align: right; opacity: 0; transition: opacity 0.1s; }
+.game-row:hover .col-action { opacity: 1; }
 
-.result-tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 2px; color: #555; background: #efefef; }
+/* 结果标签 三色 */
+.result-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.result-red   { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+.result-black { background: #f5f5f5; color: #333;    border: 1px solid #d9d9d9; }
+.result-draw  { background: #e6f7ff; color: #0958d9; border: 1px solid #91caff; }
 </style>

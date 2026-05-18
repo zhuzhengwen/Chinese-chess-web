@@ -2,7 +2,7 @@
   <div class="resources-page">
     <div class="container">
       <div class="page-header">
-        <h1 class="page-title">资源</h1>
+        <h1 class="page-title">咨询</h1>
         <p class="page-desc">中国象棋最新资讯，赛事动态、棋界要闻一站汇聚</p>
       </div>
 
@@ -31,7 +31,7 @@
                 <span class="top-badge">头条</span>
               </div>
               <div class="top-news-body">
-                <div class="news-cat-tag">{{ topNews.category }}</div>
+                <div class="news-cat-tag" :class="catColor(topNews.category)">{{ topNews.category }}</div>
                 <h2 class="top-news-title">{{ topNews.title }}</h2>
                 <p class="top-news-summary">{{ topNews.summary }}</p>
                 <div class="news-meta">
@@ -53,7 +53,7 @@
                 <div class="news-index">{{ item.id }}</div>
                 <div class="news-body">
                   <div class="news-row-head">
-                    <span class="news-cat-tag small">{{ item.category }}</span>
+                    <span class="news-cat-tag small" :class="catColor(item.category)">{{ item.category }}</span>
                     <h3 class="news-row-title">{{ item.title }}</h3>
                   </div>
                   <p class="news-row-summary">{{ item.summary }}</p>
@@ -273,100 +273,125 @@ export default {
       setTimeout(() => { this.loadingMore = false }, 800)
     },
     statusLabel(s) {
-      return { upcoming: '即将', ongoing: '进行中', ended: '已结束' }[s] || s
+      return { upcoming: '即将开幕', ongoing: '进行中', ended: '已结束' }[s] || s
+    },
+    catColor(cat) {
+      return { '赛事': 'cat-match', '棋手': 'cat-player', '文化': 'cat-culture', '技术': 'cat-tech' }[cat] || ''
     }
   }
 }
 </script>
 
 <style scoped>
-.resources-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
+.resources-page { background: #f5f6f8; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 
-.page-header { padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 28px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
+.page-header { padding: 28px 0 20px; margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; letter-spacing: 2px; }
 .page-desc { font-size: 13px; color: #aaa; }
 
-.main-layout { display: flex; gap: 32px; align-items: flex-start; }
+.main-layout { display: flex; gap: 24px; align-items: flex-start; }
 .news-main { flex: 1; min-width: 0; }
-.news-aside { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+.news-aside { width: 256px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
 
-.cat-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid #e8e8e8; flex-wrap: wrap; }
-.cat-tab { padding: 7px 14px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
-.cat-tab:hover { color: #333; }
-.cat-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
+/* 分类 Tab */
+.cat-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.cat-tab { padding: 5px 16px; font-size: 13px; color: #555; cursor: pointer; border-radius: 20px; background: #fff; border: 1px solid #e8e8e8; transition: all 0.15s; }
+.cat-tab:hover { border-color: #8B1A1A; color: #8B1A1A; }
+.cat-tab.active { background: #8B1A1A; color: #fff; border-color: #8B1A1A; font-weight: 600; }
 
 .loading-tip { color: #bbb; font-size: 14px; padding: 40px 0; }
 
-.top-news { display: flex; gap: 20px; padding: 20px; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; margin-bottom: 2px; cursor: pointer; transition: background 0.1s; }
-.top-news:hover { background: #f5f5f5; }
+/* 头条 */
+.top-news { display: flex; gap: 20px; padding: 20px; background: #fff; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.top-news:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 .top-news-img { position: relative; flex-shrink: 0; }
-.img-placeholder { width: 200px; height: 130px; border-radius: 4px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
-.img-char { font-size: 48px; font-weight: 800; color: #ccc; font-family: 'STKaiti','KaiTi',serif; }
-.top-badge { position: absolute; top: 8px; left: 8px; background: #333; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 2px; }
+.img-placeholder { width: 200px; height: 130px; border-radius: 6px; background: linear-gradient(135deg, #1d2e4a 0%, #3a5a8a 100%); display: flex; align-items: center; justify-content: center; }
+.img-char { font-size: 48px; font-weight: 800; color: rgba(255,255,255,.25); }
+.top-badge { position: absolute; top: 8px; left: 8px; background: #e63a2e; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 2px; letter-spacing: 1px; }
 .top-news-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .top-news-title { font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1.5; margin: 8px 0 10px; }
 .top-news-summary { font-size: 13px; color: #777; line-height: 1.8; flex: 1; }
 
-.news-cat-tag { display: inline-block; font-size: 11px; color: #888; border: 1px solid #e8e8e8; padding: 1px 6px; border-radius: 2px; margin-right: 8px; }
+/* 分类标签 色彩 */
+.news-cat-tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 2px; margin-right: 6px; font-weight: 500; }
 .news-cat-tag.small { font-size: 10px; }
+.cat-match  { background: #e6f4ff; color: #1677ff; }
+.cat-player { background: #f6ffed; color: #389e0d; }
+.cat-culture{ background: #fff7e6; color: #d46b08; }
+.cat-tech   { background: #f9f0ff; color: #722ed1; }
+/* 默认 */
+.news-cat-tag:not([class*="cat-"]) { background: #f5f5f5; color: #888; }
 
 .news-meta { display: flex; align-items: center; gap: 4px; font-size: 12px; margin-top: 8px; }
-.news-source { color: #666; font-weight: 500; }
+.news-source { color: #555; font-weight: 500; }
 .meta-sep { color: #ddd; }
 .news-date { color: #bbb; }
 
-.news-row { display: flex; align-items: flex-start; gap: 14px; padding: 18px 16px; background: #fff; border: 1px solid #e8e8e8; border-top: none; cursor: pointer; transition: background 0.1s; }
-.news-row:first-child { border-top: 1px solid #e8e8e8; }
-.news-row:hover { background: #f5f5f5; }
+/* 新闻列表 */
+.news-list { border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.news-row { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #fff; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; }
+.news-row:last-child { border-bottom: none; }
+.news-row:hover { background: #fafafa; }
 
-.news-index { flex-shrink: 0; width: 22px; height: 22px; border-radius: 2px; background: #f0f0f0; color: #aaa; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.news-index { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; color: #bbb; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
 .news-body { flex: 1; min-width: 0; }
 .news-row-head { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
 .news-row-title { font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.4; }
-.news-row-summary { font-size: 12px; color: #888; line-height: 1.7; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 6px; }
+.news-row-summary { font-size: 12px; color: #999; line-height: 1.7; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 6px; }
 
 .news-thumb { flex-shrink: 0; }
-.thumb-placeholder { width: 72px; height: 54px; border-radius: 3px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; }
-.thumb-placeholder span { font-size: 20px; font-weight: 800; color: #ccc; font-family: 'STKaiti','KaiTi',serif; }
+.thumb-placeholder { width: 80px; height: 60px; border-radius: 4px; background: linear-gradient(135deg, #2d3f5c 0%, #4a6a9a 100%); display: flex; align-items: center; justify-content: center; }
+.thumb-placeholder span { font-size: 22px; font-weight: 700; color: rgba(255,255,255,.3); }
 
-.load-more-wrap { text-align: center; padding: 24px 0; }
-.load-more-btn { padding: 8px 32px; border: 1px solid #e8e8e8; background: #fff; color: #666; border-radius: 2px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-.load-more-btn:hover { border-color: #333; color: #333; }
-.load-more-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.load-more-wrap { text-align: center; padding: 20px 0 4px; }
+.load-more-btn { padding: 8px 36px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.load-more-btn:hover:not(:disabled) { border-color: #8B1A1A; color: #8B1A1A; }
+.load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .empty-tip { color: #ccc; font-size: 14px; padding: 40px 0; text-align: center; }
 
-.aside-block { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
-.aside-title { font-size: 13px; font-weight: 600; color: #555; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; background: #fafafa; letter-spacing: 0.5px; }
+/* 侧边栏 */
+.aside-block { background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.aside-title { font-size: 13px; font-weight: 700; color: #1a1a1a; padding: 12px 16px 10px; border-bottom: 2px solid #8B1A1A; display: flex; align-items: center; gap: 6px; }
 
-.hot-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; }
+/* 热点排行 */
+.hot-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.1s; }
 .hot-row:last-child { border-bottom: none; }
-.hot-row:hover { background: #f5f5f5; }
-.hot-rank { flex-shrink: 0; width: 18px; height: 18px; border-radius: 2px; background: #f0f0f0; color: #bbb; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
-.hot-rank.top3 { background: #333; color: #fff; }
+.hot-row:hover { background: #fafafa; }
+.hot-rank { flex-shrink: 0; width: 18px; height: 18px; border-radius: 3px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.hot-rank:not(.top3) { background: #f5f5f5; color: #bbb; }
+.hot-rank.top3:nth-child(1) { background: #faad14; color: #fff; }
+.hot-row:nth-child(1) .hot-rank { background: #e63a2e; color: #fff; }
+.hot-row:nth-child(2) .hot-rank { background: #fa8c16; color: #fff; }
+.hot-row:nth-child(3) .hot-rank { background: #faad14; color: #fff; }
 .hot-title { font-size: 12px; color: #444; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-.event-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+/* 赛事 */
+.event-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #f5f5f5; }
 .event-row:last-child { border-bottom: none; }
-.event-date { flex-shrink: 0; width: 40px; text-align: center; border: 1px solid #e8e8e8; border-radius: 3px; overflow: hidden; }
-.event-month { background: #333; color: #fff; font-size: 9px; padding: 2px 0; }
-.event-day { font-size: 16px; font-weight: 700; color: #1a1a1a; padding: 2px 0; background: #fafafa; }
+.event-date { flex-shrink: 0; width: 42px; text-align: center; border-radius: 4px; overflow: hidden; border: 1px solid #e8e8e8; }
+.event-month { background: #8B1A1A; color: #fff; font-size: 9px; padding: 2px 0; }
+.event-day { font-size: 16px; font-weight: 700; color: #1a1a1a; padding: 2px 0; }
 .event-info { flex: 1; min-width: 0; }
 .event-name { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .event-loc { font-size: 11px; color: #bbb; }
-.event-status { flex-shrink: 0; font-size: 10px; color: #888; }
+.event-status { flex-shrink: 0; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+.status-upcoming { background: #e6f4ff; color: #1677ff; }
+.status-ongoing  { background: #f6ffed; color: #389e0d; }
+.status-ended    { background: #f5f5f5; color: #bbb; }
 
+/* 官方链接 */
 .link-list { padding: 4px 0; }
-.link-row { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; }
+.link-row { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.1s; }
 .link-row:last-child { border-bottom: none; }
-.link-row:hover { background: #f5f5f5; }
-.link-dot { width: 4px; height: 4px; border-radius: 50%; background: #555; flex-shrink: 0; }
-.link-name { flex: 1; font-size: 13px; color: #444; }
-.link-tag { font-size: 10px; color: #bbb; border: 1px solid #e8e8e8; padding: 1px 5px; border-radius: 2px; }
+.link-row:hover { background: #fafafa; }
+.link-dot { width: 5px; height: 5px; border-radius: 50%; background: #8B1A1A; flex-shrink: 0; }
+.link-name { flex: 1; font-size: 13px; color: #333; }
+.link-tag { font-size: 10px; color: #8B1A1A; border: 1px solid #f0c8c8; padding: 1px 5px; border-radius: 10px; background: #fff5f5; }
 
-.news-detail { }
-.detail-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+/* 弹窗 */
+.detail-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
 .detail-body { font-size: 14px; color: #555; line-height: 1.9; }
 .detail-body >>> p { margin-bottom: 12px; }
 
