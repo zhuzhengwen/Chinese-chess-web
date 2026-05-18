@@ -1,44 +1,33 @@
 <template>
   <footer class="page-footer">
     <div class="footer-inner">
-      <div class="footer-logo">象棋古谱</div>
-      <p class="footer-copy">© 2024 象棋古谱 · 传承千年棋道文化</p>
-      <p class="footer-sub">精选200+古典棋谱 · 弘扬中华传统文化</p>
+      <span class="footer-logo">象棋古谱</span>
+      <span class="sep">·</span>
+      <span class="footer-copy">传承千年棋道文化</span>
+      <span class="sep">·</span>
+      <span class="footer-copy">© 2024</span>
     </div>
   </footer>
 </template>
 
 <script>
-export default {
-  name: 'PageFooter'
-}
+export default { name: 'PageFooter' }
 </script>
 
 <style scoped>
 .page-footer {
-  background: #1a1a1a;
-  color: #aaa;
-  padding: 32px 24px;
+  border-top: 1px solid #f0f0f0;
+  padding: 24px;
   text-align: center;
 }
 .footer-inner {
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #bbb;
 }
-.footer-logo {
-  font-size: 18px;
-  font-weight: 800;
-  color: #c0392b;
-  letter-spacing: 3px;
-  margin-bottom: 12px;
-}
-.footer-copy {
-  font-size: 14px;
-  color: #ccc;
-  margin-bottom: 6px;
-}
-.footer-sub {
-  font-size: 12px;
-  color: #777;
-}
+.footer-logo { font-weight: 600; color: #8B1A1A; }
+.sep { color: #e0e0e0; }
 </style>

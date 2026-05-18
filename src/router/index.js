@@ -4,17 +4,15 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', redirect: '/home' },
-  { path: '/home', component: () => import('../views/Home.vue') },
+  { path: '/', redirect: '/manuals' },
   { path: '/manuals', component: () => import('../views/ManualList.vue') },
   { path: '/manuals/:id', component: () => import('../views/ManualDetail.vue') },
-  { path: '/explore', component: () => import('../views/Explore.vue') },
+  { path: '/my-manuals', component: () => import('../views/MyManuals.vue'), meta: { requiresAuth: true } },
+  { path: '/tournaments', component: () => import('../views/Tournament.vue') },
+  { path: '/players', component: () => import('../views/Player.vue') },
+  { path: '/resources', component: () => import('../views/Resources.vue') },
   { path: '/subscribe', component: () => import('../views/Subscribe.vue') },
-  {
-    path: '/user',
-    component: () => import('../views/User.vue'),
-    meta: { requiresAuth: true }
-  },
+  { path: '/user', component: () => import('../views/User.vue'), meta: { requiresAuth: true } },
   { path: '/login', component: () => import('../views/Login.vue') }
 ]
 

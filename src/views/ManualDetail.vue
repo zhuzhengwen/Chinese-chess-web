@@ -1,95 +1,138 @@
-﻿<template>
+<template>
   <div class="manual-detail-page">
     <div class="container">
-      <el-breadcrumb separator="/" class="breadcrumb">
-        <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/manuals' }">棋谱</el-breadcrumb-item>
-        <el-breadcrumb-item>{{ manual ? manual.title : '加载中…' }}</el-breadcrumb-item>
-      </el-breadcrumb>
-      <div v-if="loading" class="loading-area"><i class="el-icon-loading"></i> 加载中...</div>
+      <nav class="breadcrumb">
+        <router-link to="/manuals">棋谱</router-link>
+        <span class="sep">/</span>
+        <span>{{ manual ? manual.title : '加载中…' }}</span>
+      </nav>
+
+      <div v-if="loading" class="loading-tip">加载中…</div>
       <div v-else-if="manual" class="detail-layout">
+
+        <!-- 左侧信息 -->
         <div class="info-panel">
-          <div class="tags-row">
-            <el-tag type="danger" size="small">{{ manual.dynasty || '明代' }}</el-tag>
-            <el-tag type="info" size="small">{{ manual.categoryName || manual.category || '名谱' }}</el-tag>
-            <el-tag v-if="manual.isPremium || manual.premium" type="warning" size="small">VIP专属</el-tag>
+          <div class="meta-row">
+            <span class="meta-tag">{{ manual.dynasty || '明代' }}</span>
+            <span class="meta-tag">{{ manual.categoryName || manual.category || '名谱' }}</span>
+            <span v-if="manual.isPremium || manual.premium" class="vip-tag">VIP</span>
           </div>
           <h1 class="manual-title">{{ manual.title }}</h1>
-          <div class="author-row">
-            <i class="el-icon-user"></i>
-            <span>作者：{{ manual.author || '佚名' }}</span>
-          </div>
-          <div class="difficulty-row">
-            <span class="diff-label">难度：</span>
-            <i v-for="n in 5" :key="n" class="el-icon-star-on" :style="{ color: n <= (manual.difficulty || 3) ? '#e6a817' : '#ddd', fontSize: '18px' }"></i>
+          <div class="author-row">作者：{{ manual.author || '佚名' }}</div>
+          <div class="diff-row">
+            难度：
+            <span v-for="n in 5" :key="n" class="dot" :class="{ filled: n <= (manual.difficulty || 3) }"></span>
             <span class="diff-text">{{ difficultyLabel(manual.difficulty) }}</span>
           </div>
-          <div class="desc-section">
-            <h3>棋谱简介</h3>
-            <p>{{ manual.description || manual.desc || '这是一部经典的象棋古谱，汇集了历代高手的对局精华，对学习象棋理论有极高的参考价值。' }}</p>
+          <div class="desc-block">
+            <div class="block-label">棋谱简介</div>
+            <p>{{ manual.description || manual.desc || '经典象棋古谱，汇集了历代高手的对局精华。' }}</p>
           </div>
-          <div class="moves-count" v-if="moves.length">
-            <i class="el-icon-s-order"></i> 共 {{ moves.length }} 步棋
-          </div>
-          <el-button type="primary" class="start-btn" @click="handleStartDemo" :disabled="isPremiumLocked">
-            <i class="el-icon-video-play"></i>
+          <div class="moves-count" v-if="moves.length">共 {{ moves.length }} 步棋</div>
+          <button class="start-btn" @click="handleStartDemo" :disabled="isPremiumLocked">
             {{ isPremiumLocked ? 'VIP专属 · 开通后演示' : '开始演示' }}
-          </el-button>
-          <el-button v-if="isPremiumLocked" class="subscribe-btn" @click="$router.push('/subscribe')">开通会员</el-button>
-        </div>
-        <div class="board-panel">
-          <div class="board-container">
-            <div v-if="isPremiumLocked" class="vip-overlay">
-              <div class="vip-lock-content">
-                <i class="el-icon-lock" style="font-size:36px;color:#e6a817;margin-bottom:12px"></i>
-                <h3>VIP专属内容</h3>
-                <p>开通会员即可解锁全部棋谱演示</p>
-                <el-button class="unlock-btn" @click="$router.push('/subscribe')">立即开通</el-button>
+          </button>
+          <button v-if="isPremiumLocked" class="subscribe-btn" @click="$router.push('/subscribe')">开通会员</button>
+
+          <!-- 棋步列表 -->
+          <div class="move-list" v-if="moves.length">
+            <div class="block-label" style="margin-bottom:8px">棋步记录</div>
+            <div class="moves-grid">
+              <div
+                v-for="(move, idx) in moves"
+                :key="idx"
+                class="move-item"
+                :class="{ active: idx === currentMoveIndex }"
+                @click="currentMoveIndex = idx"
+              >
+                <span class="move-num">{{ idx + 1 }}</span>
+                <span>{{ move.notation || move }}</span>
               </div>
-            </div>
-            <div class="chess-board">
-              <div class="board-labels-h">
-                <span v-for="col in 9" :key="col">{{ colLabel(col-1) }}</span>
-              </div>
-              <div class="board-inner">
-                <div class="board-rows">
-                  <div v-for="row in 10" :key="row" class="board-row">
-                    <div v-for="col in 9" :key="col" class="board-cell">
-                      <div v-if="getPieceAt(row-1, col-1)" class="chess-piece" :class="getPieceClass(row-1, col-1)">{{ getPieceAt(row-1, col-1) }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="board-labels-h">
-                <span v-for="col in 9" :key="col">{{ 9 - (col-1) }}</span>
-              </div>
-            </div>
-            <div class="board-controls">
-              <el-button-group>
-                <el-button size="small" @click="goToStart">|◀</el-button>
-                <el-button size="small" @click="prevMove">◀</el-button>
-                <el-button size="small" @click="nextMove">▶</el-button>
-                <el-button size="small" @click="goToEnd">▶|</el-button>
-              </el-button-group>
-              <span class="move-counter" v-if="moves.length">第 {{ currentMoveIndex + 1 }} / {{ moves.length }} 步</span>
-              <span class="move-counter" v-else>初始局面</span>
             </div>
           </div>
-          <div class="move-list" v-if="moves.length">
-            <h4 class="move-list-title">棋步记录</h4>
-            <div class="moves-grid">
-              <div v-for="(move, idx) in moves" :key="idx" class="move-item" :class="{ active: idx === currentMoveIndex }" @click="currentMoveIndex = idx">
-                <span class="move-num">{{ idx + 1 }}</span>
-                <span class="move-text">{{ move.notation || move }}</span>
-              </div>
+        </div>
+
+        <!-- 右侧棋盘 -->
+        <div class="board-panel">
+          <div v-if="isPremiumLocked" class="vip-overlay">
+            <div class="lock-content">
+              <div class="lock-title">VIP 专属内容</div>
+              <div class="lock-desc">开通会员即可解锁全部棋谱演示</div>
+              <button class="unlock-btn" @click="$router.push('/subscribe')">立即开通</button>
             </div>
+          </div>
+
+          <!-- 列号 -->
+          <div class="col-numbers">
+            <span v-for="c in 9" :key="c">{{ c }}</span>
+          </div>
+
+          <!-- 棋盘主体 -->
+          <div class="board-wrap">
+            <!-- SVG 棋盘线 -->
+            <svg class="board-svg" :width="BW" :height="BH" xmlns="http://www.w3.org/2000/svg">
+              <!-- 外框 -->
+              <rect :x="PAD" :y="PAD" :width="CELL*8" :height="CELL*9"
+                fill="none" stroke="#5c3200" stroke-width="2"/>
+              <!-- 横线 (r=0..9) -->
+              <line v-for="r in 10" :key="'h'+r"
+                :x1="PAD" :y1="PAD+(r-1)*CELL"
+                :x2="PAD+CELL*8" :y2="PAD+(r-1)*CELL"
+                stroke="#5c3200" stroke-width="1"/>
+              <!-- 竖线 左右两侧（全高） -->
+              <line :x1="PAD" :y1="PAD" :x2="PAD" :y2="PAD+CELL*9" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD+CELL*8" :y1="PAD" :x2="PAD+CELL*8" :y2="PAD+CELL*9" stroke="#5c3200" stroke-width="1"/>
+              <!-- 竖线 中间 7 条上半（楚河处断开） -->
+              <line v-for="c in 7" :key="'vu'+c"
+                :x1="PAD+c*CELL" :y1="PAD" :x2="PAD+c*CELL" :y2="PAD+4*CELL"
+                stroke="#5c3200" stroke-width="1"/>
+              <!-- 竖线 中间 7 条下半 -->
+              <line v-for="c in 7" :key="'vd'+c"
+                :x1="PAD+c*CELL" :y1="PAD+5*CELL" :x2="PAD+c*CELL" :y2="PAD+9*CELL"
+                stroke="#5c3200" stroke-width="1"/>
+              <!-- 上将宫斜线 -->
+              <line :x1="PAD+3*CELL" :y1="PAD" :x2="PAD+5*CELL" :y2="PAD+2*CELL" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD+5*CELL" :y1="PAD" :x2="PAD+3*CELL" :y2="PAD+2*CELL" stroke="#5c3200" stroke-width="1"/>
+              <!-- 下帅宫斜线 -->
+              <line :x1="PAD+3*CELL" :y1="PAD+7*CELL" :x2="PAD+5*CELL" :y2="PAD+9*CELL" stroke="#5c3200" stroke-width="1"/>
+              <line :x1="PAD+5*CELL" :y1="PAD+7*CELL" :x2="PAD+3*CELL" :y2="PAD+9*CELL" stroke="#5c3200" stroke-width="1"/>
+              <!-- 楚河汉界 -->
+              <text :x="PAD+CELL*1.8" :y="PAD+4*CELL+CELL*0.5+7"
+                font-size="17" fill="#5c3200" font-weight="bold"
+                font-family="STKaiti,KaiTi,SimSun,serif" letter-spacing="8">楚  河</text>
+              <text :x="PAD+CELL*4.6" :y="PAD+4*CELL+CELL*0.5+7"
+                font-size="17" fill="#5c3200" font-weight="bold"
+                font-family="STKaiti,KaiTi,SimSun,serif" letter-spacing="8">漢  界</text>
+            </svg>
+
+            <!-- 棋子层 -->
+            <div class="pieces-layer" :style="{ width: BW+'px', height: BH+'px' }">
+              <div
+                v-for="item in pieceList"
+                :key="item.r + '-' + item.c"
+                class="piece"
+                :class="item.isRed ? 'red-piece' : 'black-piece'"
+                :style="pieceStyle(item.r, item.c)"
+              >{{ item.piece }}</div>
+            </div>
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="board-controls">
+            <button class="ctrl-btn" @click="goToStart" title="跳至开局">|◀</button>
+            <button class="ctrl-btn" @click="prevMove" title="上一步">◀</button>
+            <span class="move-counter">
+              {{ moves.length ? '第 ' + (currentMoveIndex + 1) + ' / ' + moves.length + ' 步' : '初始局面' }}
+            </span>
+            <button class="ctrl-btn" @click="nextMove" title="下一步">▶</button>
+            <button class="ctrl-btn" @click="goToEnd" title="跳至末局">▶|</button>
           </div>
         </div>
       </div>
+
       <div v-else class="not-found">
-        <i class="el-icon-warning" style="font-size:48px;color:#ccc"></i>
-        <p>棋谱不存在或已下架</p>
-        <el-button @click="$router.push('/manuals')" type="primary">返回棋谱库</el-button>
+        <div>棋谱不存在或已下架</div>
+        <button class="start-btn" style="width:auto;padding:0 24px;margin-top:16px" @click="$router.push('/manuals')">返回棋谱库</button>
       </div>
     </div>
   </div>
@@ -100,30 +143,48 @@ import { manuals as manualsApi } from '../api/index'
 import { mapGetters } from 'vuex'
 
 const INITIAL_BOARD = [
-  ['車','馬','相','仕','將','仕','相','馬','車'],
-  ['','','','','','','','',''],
-  ['','砲','','','','','','砲',''],
+  ['車','馬','象','士','將','士','象','馬','車'],
+  ['', '', '', '', '', '', '', '', ''],
+  ['', '砲', '', '', '', '', '', '砲', ''],
   ['卒','','卒','','卒','','卒','','卒'],
-  ['','','','','','','','',''],
-  ['','','','','','','','',''],
+  ['', '', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', '', ''],
   ['兵','','兵','','兵','','兵','','兵'],
-  ['','炮','','','','','','炮',''],
-  ['','','','','','','','',''],
-  ['俥','傌','象','仕','帅','仕','象','傌','俥']
+  ['', '炮', '', '', '', '', '', '炮', ''],
+  ['', '', '', '', '', '', '', '', ''],
+  ['俥','傌','相','仕','帅','仕','相','傌','俥']
 ]
+
+const RED_PIECES = new Set(['帅','仕','相','俥','傌','炮','兵'])
 
 export default {
   name: 'ManualDetail',
   data() {
+    const CELL = 52
+    const PAD  = 28
     return {
-      manual: null, loading: false, currentMoveIndex: 0,
-      board: JSON.parse(JSON.stringify(INITIAL_BOARD)), moves: []
+      CELL, PAD,
+      BW: PAD * 2 + CELL * 8,
+      BH: PAD * 2 + CELL * 9,
+      manual: null, loading: false,
+      currentMoveIndex: 0,
+      board: JSON.parse(JSON.stringify(INITIAL_BOARD)),
+      moves: []
     }
   },
   computed: {
     ...mapGetters('user', ['isLoggedIn', 'isVip']),
     isPremiumLocked() {
       return (this.manual && (this.manual.isPremium || this.manual.premium)) && !this.isVip
+    },
+    pieceList() {
+      const list = []
+      this.board.forEach((row, r) => {
+        row.forEach((piece, c) => {
+          if (piece) list.push({ piece, r, c, isRed: RED_PIECES.has(piece) })
+        })
+      })
+      return list
     }
   },
   mounted() { this.fetchDetail() },
@@ -133,13 +194,15 @@ export default {
       try {
         const res = await manualsApi.getDetail(this.$route.params.id)
         this.manual = res.data || res
-        if (this.manual && this.manual.content) this.parseMoves(this.manual.content)
+        const content = this.manual && this.manual.content
+        if (content) this.parseMoves(content)
         else this.moves = this.getMockMoves()
       } catch (e) {
         this.manual = {
-          id: this.$route.params.id, title: '橘中秘·炮局第一', dynasty: '明',
+          id: this.$route.params.id,
+          title: '橘中秘·炮局第一', dynasty: '明代',
           author: '朱晋桢', categoryName: '橘中秘', difficulty: 3,
-          description: '《橘中秘》是明代象棋名谱，以炮局为主要战术体系。此局着重展示炮的进攻威力与灵活运用。',
+          description: '《橘中秘》是明代象棋名谱，以炮局为主要战术体系，此局着重展示炮的进攻威力。',
           isPremium: false
         }
         this.moves = this.getMockMoves()
@@ -147,34 +210,31 @@ export default {
     },
     getMockMoves() {
       return [
-        { notation: '炮二平五' }, { notation: '炮８平５' }, { notation: '马二进三' },
-        { notation: '马８进７' }, { notation: '车一平二' }, { notation: '车９平８' },
-        { notation: '兵七进一' }, { notation: '卒７进１' }, { notation: '马八进七' },
-        { notation: '马２进３' }
+        { notation: '炮二平五' }, { notation: '炮８平５' },
+        { notation: '马二进三' }, { notation: '马８进７' },
+        { notation: '车一平二' }, { notation: '车９平８' },
+        { notation: '兵七进一' }, { notation: '卒７进１' },
+        { notation: '马八进七' }, { notation: '马２进３' }
       ]
     },
     parseMoves(content) {
       try {
-        if (typeof content === 'string') {
-          const parsed = JSON.parse(content)
-          this.moves = Array.isArray(parsed) ? parsed : []
-        } else if (Array.isArray(content)) { this.moves = content }
+        const parsed = typeof content === 'string' ? JSON.parse(content) : content
+        this.moves = Array.isArray(parsed) ? parsed : []
       } catch (e) { this.moves = [] }
     },
-    getPieceAt(row, col) { return this.board[row] && this.board[row][col] ? this.board[row][col] : null },
-    getPieceClass(row, col) {
-      const piece = this.board[row][col]
-      const redPieces = ['帅', '仕', '象', '俥', '傌', '炮', '兵']
-      return redPieces.includes(piece) ? 'red-piece' : 'black-piece'
+    pieceStyle(r, c) {
+      return {
+        left: (this.PAD + c * this.CELL) + 'px',
+        top:  (this.PAD + r * this.CELL) + 'px'
+      }
     },
-    colLabel(i) { return ['a','b','c','d','e','f','g','h','i'][i] },
     difficultyLabel(d) {
-      const map = { 1: '入门', 2: '进阶', 3: '高级', 4: '大师', 5: '宗师' }
-      return map[d] || '未知'
+      return { 1: '入门', 2: '进阶', 3: '高级', 4: '大师', 5: '宗师' }[d] || ''
     },
     handleStartDemo() {
       if (this.moves.length) this.currentMoveIndex = 0
-      this.$message.success('演示模式开始，使用下方按钮逐步播放棋步')
+      this.$message.success('演示模式开始，使用下方按钮逐步播放')
     },
     prevMove() { if (this.currentMoveIndex > 0) this.currentMoveIndex-- },
     nextMove() { if (this.currentMoveIndex < this.moves.length - 1) this.currentMoveIndex++ },
@@ -185,59 +245,198 @@ export default {
 </script>
 
 <style scoped>
-.manual-detail-page { background: #f7f3ee; min-height: calc(100vh - 60px); padding-bottom: 48px; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.breadcrumb { padding: 20px 0 8px; font-size: 13px; }
-.loading-area { text-align: center; padding: 80px; color: #999; font-size: 16px; }
-.detail-layout { display: flex; gap: 32px; align-items: flex-start; padding: 16px 0 0; }
-.info-panel { flex: 0 0 40%; max-width: 420px; }
-.tags-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-.manual-title { font-size: 30px; font-weight: 800; color: #1a1a1a; margin-bottom: 16px; line-height: 1.3; }
-.author-row { display: flex; align-items: center; gap: 6px; font-size: 15px; color: #666; margin-bottom: 12px; }
-.difficulty-row { display: flex; align-items: center; gap: 4px; margin-bottom: 20px; }
-.diff-label { font-size: 14px; color: #666; }
-.diff-text { font-size: 13px; color: #999; margin-left: 4px; }
-.desc-section { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.desc-section h3 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
-.desc-section p { font-size: 14px; color: #555; line-height: 1.8; }
-.moves-count { font-size: 14px; color: #888; margin-bottom: 16px; }
-.start-btn { background: #8B1A1A !important; border-color: #8B1A1A !important; color: #fff !important; font-size: 16px; font-weight: 600; padding: 12px 32px; width: 100%; margin-bottom: 12px; }
-.subscribe-btn { width: 100%; font-weight: 600; }
-.board-panel { flex: 1; min-width: 0; }
-.board-container { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; }
-.vip-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); border-radius: 12px; display: flex; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(4px); }
-.vip-lock-content { text-align: center; color: #fff; }
-.vip-lock-content h3 { font-size: 20px; margin-bottom: 8px; color: #f4c842; }
-.vip-lock-content p { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 20px; }
-.unlock-btn { background: linear-gradient(135deg, #e6a817, #f4c842) !important; color: #5C0000 !important; border: none !important; font-weight: 700; }
-.chess-board { user-select: none; }
-.board-labels-h { display: flex; justify-content: space-around; padding: 0 4px; margin-bottom: 4px; }
-.board-labels-h span { width: 40px; text-align: center; font-size: 11px; color: #bbb; }
-.board-inner { border: 3px solid #8B1A1A; border-radius: 4px; background: #f0d9a0; overflow: hidden; }
-.board-rows { display: flex; flex-direction: column; }
-.board-row { display: flex; border-bottom: 1px solid rgba(139,26,26,0.3); }
-.board-row:last-child { border-bottom: none; }
-.board-cell { width: 40px; height: 40px; border-right: 1px solid rgba(139,26,26,0.3); display: flex; align-items: center; justify-content: center; }
-.board-cell:last-child { border-right: none; }
-.chess-piece { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; cursor: pointer; border: 2px solid; transition: transform 0.15s; }
-.chess-piece:hover { transform: scale(1.1); }
-.red-piece { background: radial-gradient(circle at 35% 35%, #fff0f0, #c0392b); color: #8B1A1A; border-color: #8B1A1A; }
-.black-piece { background: radial-gradient(circle at 35% 35%, #555, #1a1a1a); color: #e8d5a0; border-color: #1a1a1a; }
-.board-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 16px; }
-.move-counter { font-size: 13px; color: #888; }
-.move-list { background: #fff; border-radius: 10px; padding: 16px; margin-top: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.move-list-title { font-size: 14px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; }
-.moves-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 160px; overflow-y: auto; }
-.move-item { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 5px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
-.move-item:hover { background: #fdf0f0; }
+.manual-detail-page { background: #faf8f5; min-height: calc(100vh - 56px); padding-bottom: 48px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+.breadcrumb {
+  padding: 20px 0 16px;
+  font-size: 13px;
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.breadcrumb a { color: #bbb; }
+.breadcrumb a:hover { color: #8B1A1A; }
+.sep { color: #ddd; }
+
+.loading-tip { color: #bbb; padding: 60px 0; font-size: 14px; }
+
+.detail-layout { display: flex; gap: 48px; align-items: flex-start; }
+
+/* ─── 左侧信息面板 ─── */
+.info-panel { flex: 0 0 300px; }
+
+.meta-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.meta-tag {
+  font-size: 11px; color: #999;
+  border: 1px solid #e8e8e8;
+  padding: 2px 8px; border-radius: 2px;
+}
+.vip-tag {
+  font-size: 11px; font-weight: 700; color: #8B1A1A;
+  border: 1px solid #8B1A1A;
+  padding: 2px 8px; border-radius: 2px; letter-spacing: 1px;
+}
+.manual-title {
+  font-size: 22px; font-weight: 800; color: #1a1a1a;
+  margin-bottom: 10px; line-height: 1.3;
+  font-family: 'STKaiti','KaiTi',serif;
+}
+.author-row { font-size: 13px; color: #888; margin-bottom: 8px; }
+.diff-row {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 13px; color: #888; margin-bottom: 18px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #e0e0e0; }
+.dot.filled { background: #8B1A1A; }
+.diff-text { margin-left: 4px; color: #bbb; }
+
+.desc-block { border: 1px solid #f0ebe0; border-radius: 4px; padding: 14px; margin-bottom: 14px; background: #fff; }
+.block-label { font-size: 11px; font-weight: 700; color: #bbb; letter-spacing: 1px; margin-bottom: 6px; }
+.desc-block p { font-size: 13px; color: #666; line-height: 1.8; }
+
+.moves-count { font-size: 12px; color: #bbb; margin-bottom: 12px; }
+
+.start-btn {
+  width: 100%; height: 42px;
+  background: #8B1A1A; color: #fff;
+  border: none; border-radius: 3px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.15s;
+  margin-bottom: 8px;
+}
+.start-btn:hover { opacity: 0.88; }
+.start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.subscribe-btn {
+  width: 100%; height: 38px;
+  background: #fff; border: 1px solid #8B1A1A;
+  color: #8B1A1A; border-radius: 3px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+.move-list { margin-top: 20px; }
+.moves-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 2px; max-height: 220px; overflow-y: auto;
+}
+.move-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: 3px;
+  cursor: pointer; font-size: 12px; color: #555;
+  transition: background 0.1s;
+}
+.move-item:hover { background: #fdf5f0; }
 .move-item.active { background: #8B1A1A; color: #fff; }
-.move-num { font-size: 11px; opacity: 0.6; min-width: 18px; }
-.not-found { text-align: center; padding: 80px; color: #bbb; }
-.not-found p { margin: 16px 0 24px; font-size: 16px; }
-@media (max-width: 768px) {
+.move-num { font-size: 10px; opacity: 0.5; min-width: 18px; }
+
+/* ─── 右侧棋盘 ─── */
+.board-panel { flex: 1; display: flex; flex-direction: column; align-items: flex-start; position: relative; }
+
+.vip-overlay {
+  position: absolute; inset: 0; z-index: 20;
+  background: rgba(250,248,245,0.92);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+}
+.lock-content { text-align: center; }
+.lock-title { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+.lock-desc { font-size: 13px; color: #888; margin-bottom: 20px; }
+.unlock-btn {
+  padding: 10px 28px; background: #8B1A1A; color: #fff;
+  border: none; border-radius: 3px; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+
+/* 列号 */
+.col-numbers {
+  display: flex;
+  margin-bottom: 2px;
+  padding-left: 28px;
+}
+.col-numbers span {
+  width: 52px;
+  text-align: center;
+  font-size: 12px;
+  color: #8a6030;
+  font-family: 'STKaiti','KaiTi',serif;
+}
+
+/* 棋盘容器 */
+.board-wrap {
+  position: relative;
+  display: inline-block;
+  background: #dcb47a;
+  border: 3px solid #8B5e20;
+  border-radius: 2px;
+  box-shadow: 4px 4px 16px rgba(0,0,0,0.3), inset 0 0 40px rgba(160,100,20,0.15);
+}
+
+.board-svg { display: block; }
+
+/* 棋子层 */
+.pieces-layer { position: absolute; top: 0; left: 0; pointer-events: none; }
+
+/* 棋子通用 */
+.piece {
+  position: absolute;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 900;
+  font-family: 'STKaiti','KaiTi','SimSun',serif;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.15s;
+  user-select: none;
+}
+.piece:hover { transform: translate(-50%, -50%) scale(1.1); z-index: 10; }
+
+/* 红方棋子 */
+.red-piece {
+  background: radial-gradient(circle at 38% 32%, #e86060, #9B0a0a);
+  color: #ffe8a0;
+  border: 2px solid #c8901a;
+  box-shadow:
+    0 0 0 3px #f0c040,
+    0 0 0 4px #a86a10,
+    0 3px 8px rgba(0,0,0,0.5);
+}
+
+/* 黑方棋子 */
+.black-piece {
+  background: radial-gradient(circle at 38% 32%, #555555, #111111);
+  color: #e8d090;
+  border: 2px solid #a07820;
+  box-shadow:
+    0 0 0 3px #d0a030,
+    0 0 0 4px #806010,
+    0 3px 8px rgba(0,0,0,0.5);
+}
+
+/* 操作按钮 */
+.board-controls {
+  display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  margin-top: 14px;
+}
+.ctrl-btn {
+  width: 38px; height: 32px;
+  border: 1px solid #e0dbd0;
+  background: #fff; border-radius: 3px;
+  font-size: 12px; color: #555;
+  cursor: pointer; transition: all 0.15s;
+}
+.ctrl-btn:hover { border-color: #8B1A1A; color: #8B1A1A; background: #fdf8f4; }
+.move-counter {
+  font-size: 12px; color: #999;
+  min-width: 110px; text-align: center;
+}
+
+.not-found { text-align: center; padding: 80px; color: #bbb; font-size: 14px; }
+
+@media (max-width: 960px) {
   .detail-layout { flex-direction: column; }
-  .info-panel { max-width: 100%; }
-  .board-cell { width: 32px; height: 32px; }
-  .chess-piece { width: 28px; height: 28px; font-size: 11px; }
+  .info-panel { flex: none; width: 100%; }
 }
 </style>

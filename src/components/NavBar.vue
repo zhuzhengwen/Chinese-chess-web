@@ -1,12 +1,13 @@
 <template>
   <header class="navbar">
     <div class="navbar-inner">
-      <router-link to="/home" class="logo">象棋古谱</router-link>
+      <router-link to="/manuals" class="logo">象棋古谱</router-link>
       <nav class="nav-links">
-        <router-link to="/home" class="nav-item" active-class="active" exact>首页</router-link>
         <router-link to="/manuals" class="nav-item" active-class="active">棋谱</router-link>
-        <router-link to="/explore" class="nav-item" active-class="active">探索</router-link>
-        <router-link to="/subscribe" class="nav-item" active-class="active">订阅</router-link>
+        <router-link to="/my-manuals" class="nav-item" active-class="active">我的棋谱</router-link>
+        <router-link to="/tournaments" class="nav-item" active-class="active">赛事</router-link>
+        <router-link to="/players" class="nav-item" active-class="active">棋手</router-link>
+        <router-link to="/resources" class="nav-item" active-class="active">资源</router-link>
       </nav>
       <div class="nav-right">
         <template v-if="isLoggedIn && userInfo">
@@ -14,22 +15,16 @@
             <div class="user-trigger">
               <div class="avatar">{{ avatarChar }}</div>
               <span class="nickname">{{ userInfo.nickname || userInfo.phone }}</span>
-              <i class="el-icon-arrow-down" style="font-size:12px;margin-left:4px;color:#666"></i>
             </div>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="profile">
-                <i class="el-icon-user"></i> 个人中心
-              </el-dropdown-item>
-              <el-dropdown-item command="logout" divided>
-                <i class="el-icon-switch-button"></i> 退出
-              </el-dropdown-item>
+              <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+              <el-dropdown-item command="subscribe">会员订阅</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
         <template v-else>
-          <router-link to="/login">
-            <el-button type="primary" size="small" class="login-btn">登录</el-button>
-          </router-link>
+          <router-link to="/login" class="login-link">登录</router-link>
         </template>
       </div>
     </div>
@@ -38,7 +33,6 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-
 export default {
   name: 'NavBar',
   computed: {
@@ -46,20 +40,17 @@ export default {
     ...mapState('user', ['userInfo']),
     avatarChar() {
       if (!this.userInfo) return '?'
-      const name = this.userInfo.nickname || this.userInfo.phone || '?'
-      return name.charAt(0).toUpperCase()
+      return (this.userInfo.nickname || this.userInfo.phone || '?').charAt(0).toUpperCase()
     }
   },
   methods: {
     handleCommand(cmd) {
-      if (cmd === 'profile') {
-        this.$router.push('/user')
-      } else if (cmd === 'logout') {
+      if (cmd === 'profile') this.$router.push('/user')
+      else if (cmd === 'subscribe') this.$router.push('/subscribe')
+      else if (cmd === 'logout') {
         this.$store.dispatch('user/logout')
         this.$message.success('已退出登录')
-        if (this.$route.meta.requiresAuth) {
-          this.$router.push('/home')
-        }
+        if (this.$route.meta.requiresAuth) this.$router.push('/manuals')
       }
     }
   }
@@ -69,14 +60,11 @@ export default {
 <style scoped>
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 1000;
-  height: 60px;
+  height: 56px;
   background: #fff;
-  border-bottom: 1px solid #ececec;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-bottom: 1px solid #f0f0f0;
 }
 .navbar-inner {
   max-width: 1200px;
@@ -84,63 +72,51 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 0 32px;
 }
 .logo {
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 700;
   color: #8B1A1A;
   letter-spacing: 2px;
   flex-shrink: 0;
-  text-decoration: none;
+  font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
 }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
   margin-left: 48px;
   flex: 1;
 }
 .nav-item {
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-size: 15px;
+  padding: 5px 16px;
+  font-size: 14px;
   color: #555;
-  text-decoration: none;
-  transition: all 0.2s;
-  font-weight: 500;
+  border-radius: 4px;
+  transition: color 0.15s;
 }
-.nav-item:hover { color: #8B1A1A; background: #fdf0f0; }
-.nav-item.active { color: #8B1A1A; background: #fdf0f0; font-weight: 600; }
-.nav-right { margin-left: auto; display: flex; align-items: center; }
-.login-btn {
-  background: #8B1A1A !important;
-  border-color: #8B1A1A !important;
-  color: #fff !important;
-  font-weight: 600;
-  padding: 0 20px;
-}
+.nav-item:hover { color: #1a1a1a; }
+.nav-item.active { color: #8B1A1A; font-weight: 600; }
+.nav-right { margin-left: auto; }
+.login-link { font-size: 14px; color: #8B1A1A; font-weight: 500; }
 .user-trigger {
   display: flex;
   align-items: center;
+  gap: 8px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
 }
-.user-trigger:hover { background: #f5f5f5; }
 .avatar {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8B1A1A, #c0392b);
+  background: #8B1A1A;
   color: #fff;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 8px;
 }
 .nickname {
   font-size: 14px;

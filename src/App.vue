@@ -19,32 +19,17 @@ export default {
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background-color: #f7f3ee;
-  color: #333;
+  background: #faf8f5;
+  color: #1a1a1a;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.main-content {
-  flex: 1;
-  padding-top: 60px;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+.main-content { flex: 1; padding-top: 56px; }
+a { text-decoration: none; color: inherit; }
 </style>
