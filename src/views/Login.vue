@@ -1,15 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-box">
-      <div class="pieces-row">
-        <div class="piece red">
-          <div class="piece-ring"><span class="piece-char">帅</span></div>
-        </div>
-        <div class="piece black">
-          <div class="piece-ring"><span class="piece-char">将</span></div>
-        </div>
-      </div>
-      <h1 class="login-title">象棋古谱</h1>
+      <div class="login-logo">象棋古谱</div>
       <p class="login-sub">传承千年棋道文化</p>
 
       <el-form ref="loginForm" :model="form" :rules="rules" label-position="top" class="login-form">
@@ -135,61 +127,33 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  background: #fafafa;
+  background: #fff;
 }
 .login-box {
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 40px 36px 32px;
   width: 100%;
-  max-width: 380px;
+  max-width: 340px;
   text-align: center;
 }
 
-/* chess pieces */
-.pieces-row { display: flex; justify-content: center; gap: 16px; margin-bottom: 20px; }
-.piece { display: flex; align-items: center; justify-content: center; }
-.piece-ring {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.red .piece-ring {
-  background: #8B1A1A;
-  border: 3px solid #5C0000;
-  box-shadow: inset 0 0 0 4px rgba(255,220,180,0.15);
-}
-.black .piece-ring {
-  background: #2c2c2c;
-  border: 3px solid #111;
-  box-shadow: inset 0 0 0 4px rgba(255,255,255,0.06);
-}
-.piece-char { font-size: 24px; font-weight: 900; }
-.red .piece-char { color: #f4c842; }
-.black .piece-char { color: #e8d5a0; }
-
-.login-title {
-  font-size: 24px;
-  font-weight: 800;
+.login-logo {
+  font-size: 22px;
+  font-weight: 700;
   color: #1a1a1a;
   letter-spacing: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-family: 'STKaiti', 'KaiTi', serif;
 }
-.login-sub { font-size: 12px; color: #bbb; letter-spacing: 2px; margin-bottom: 28px; }
+.login-sub { font-size: 12px; color: #bbb; letter-spacing: 2px; margin-bottom: 36px; }
 
 .login-form { text-align: left; }
 .login-form >>> .el-form-item { margin-bottom: 14px; }
 .login-form >>> .el-input__inner {
   height: 42px;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 14px;
   border-color: #e8e8e8;
 }
-.login-form >>> .el-input__inner:focus { border-color: #8B1A1A; }
+.login-form >>> .el-input__inner:focus { border-color: #333; }
 
 .code-row { display: flex; gap: 8px; }
 .code-row >>> .el-input { flex: 1; }
@@ -199,36 +163,36 @@ export default {
   padding: 0 14px;
   background: #fff;
   border: 1px solid #e8e8e8;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 12px;
-  color: #8B1A1A;
+  color: #555;
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, color 0.15s;
 }
-.code-btn:hover:not(:disabled) { border-color: #8B1A1A; }
+.code-btn:hover:not(:disabled) { border-color: #333; color: #1a1a1a; }
 .code-btn:disabled { color: #ccc; cursor: not-allowed; }
 
 .agree-check { font-size: 12px; color: #999; }
-.agree-link { color: #8B1A1A; }
+.agree-link { color: #555; text-decoration: underline; }
 
 .login-btn {
   width: 100%;
   height: 44px;
-  background: #8B1A1A;
+  background: #1a1a1a;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   border: none;
-  border-radius: 4px;
-  letter-spacing: 2px;
+  border-radius: 2px;
+  letter-spacing: 3px;
   cursor: pointer;
   transition: opacity 0.15s;
 }
-.login-btn:hover { opacity: 0.88; }
-.login-btn.loading { opacity: 0.7; cursor: not-allowed; }
+.login-btn:hover { opacity: 0.75; }
+.login-btn.loading { opacity: 0.5; cursor: not-allowed; }
 
-.dev-area { margin-top: 16px; text-align: center; }
+.dev-area { margin-top: 20px; text-align: center; }
 .dev-btn {
   background: none;
   border: none;
@@ -236,7 +200,6 @@ export default {
   color: #ccc;
   cursor: pointer;
   padding: 4px 0;
-  text-decoration: underline;
 }
-.dev-btn:hover { color: #999; }
+.dev-btn:hover { color: #888; }
 </style>
