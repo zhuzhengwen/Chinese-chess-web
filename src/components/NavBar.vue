@@ -98,7 +98,7 @@ export default {
   transition: color 0.15s;
 }
 .nav-item:hover { color: #1a1a1a; }
-.nav-item.active { color: #8B1A1A; font-weight: 600; }
+.nav-item.active { color: #1a1a1a; font-weight: 600; }
 .nav-right { margin-left: auto; }
 .login-link { font-size: 14px; color: #8B1A1A; font-weight: 500; }
 .user-trigger {

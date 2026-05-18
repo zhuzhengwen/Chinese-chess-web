@@ -76,7 +76,7 @@
             class="player-card"
             @click="selectedPlayer = player"
           >
-            <div class="player-avatar" :class="'era-' + player.eraClass">
+            <div class="player-avatar">
               {{ player.name.charAt(0) }}
             </div>
             <div class="player-info">
@@ -202,249 +202,69 @@ export default {
 </script>
 
 <style scoped>
-.player-page { background: #faf8f5; min-height: calc(100vh - 56px); padding-bottom: 60px; }
+.player-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
-.page-header { padding: 36px 0 24px; border-bottom: 1px solid #ece8e0; margin-bottom: 24px; }
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-  font-family: 'STKaiti', 'KaiTi', serif;
-  letter-spacing: 2px;
-}
+.page-header { padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
 .page-desc { font-size: 13px; color: #aaa; }
 
-/* 时代标签 */
-.era-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-.era-tab {
-  padding: 4px 14px;
-  font-size: 13px;
-  color: #666;
-  border: 1px solid #e0dbd0;
-  border-radius: 2px;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.15s;
-}
-.era-tab:hover { border-color: #8B1A1A; color: #8B1A1A; }
-.era-tab.active { background: #8B1A1A; border-color: #8B1A1A; color: #fff; }
+.era-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e8e8e8; flex-wrap: wrap; }
+.era-tab { padding: 7px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
+.era-tab:hover { color: #333; }
+.era-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
 
 .filter-bar { margin-bottom: 24px; }
-.search-input {
-  width: 200px;
-  height: 32px;
-  padding: 0 10px;
-  border: 1px solid #e0dbd0;
-  border-radius: 2px;
-  font-size: 13px;
-  background: #fff;
-  outline: none;
-}
-.search-input:focus { border-color: #8B1A1A; }
+.search-input { width: 200px; height: 32px; padding: 0 10px; border: 1px solid #e8e8e8; border-radius: 2px; font-size: 13px; background: #fff; outline: none; }
+.search-input:focus { border-color: #333; }
 
-/* 棋手列表 */
-.players-grid { display: flex; flex-direction: column; gap: 0; border: 1px solid #ece8e0; border-radius: 4px; overflow: hidden; }
-.player-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  padding: 20px 24px;
-  border-bottom: 1px solid #f0ebe0;
-  cursor: pointer;
-  transition: background 0.1s;
-  background: #fff;
-}
+.players-grid { display: flex; flex-direction: column; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+.player-card { display: flex; align-items: flex-start; gap: 20px; padding: 20px 24px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; background: #fff; }
 .player-card:last-child { border-bottom: none; }
-.player-card:hover { background: #fdf8f4; }
+.player-card:hover { background: #f5f5f5; }
 
-.player-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 4px;
-  color: #fff;
-  font-size: 22px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
-.era-ming .player-avatar, .player-avatar.era-ming { background: #8B1A1A; }
-.era-qing .player-avatar, .player-avatar.era-qing { background: #1a4a8b; }
-.era-modern .player-avatar, .player-avatar.era-modern { background: #1a5c2a; }
-.era-ancient .player-avatar, .player-avatar.era-ancient { background: #5c3d1a; }
-
-/* 选择器需要在父级上 */
-.player-card:nth-child(1) .player-avatar { background: #8B1A1A; }
+.player-avatar { width: 52px; height: 52px; border-radius: 4px; background: #e8e8e8; color: #555; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'STKaiti','KaiTi',serif; }
 
 .player-info { flex: 1; }
-.player-name { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti', 'KaiTi', serif; }
+.player-name { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; }
 .player-era { font-size: 12px; color: #888; margin-bottom: 4px; }
-.player-title {
-  display: inline-block;
-  font-size: 11px;
-  color: #8B1A1A;
-  border: 1px solid rgba(139,26,26,0.3);
-  padding: 1px 6px;
-  border-radius: 2px;
-  margin-bottom: 8px;
-}
+.player-title { display: inline-block; font-size: 11px; color: #666; border: 1px solid #ddd; padding: 1px 6px; border-radius: 2px; margin-bottom: 8px; }
 .player-desc { font-size: 13px; color: #666; margin-bottom: 4px; }
-.player-count { font-size: 12px; color: #8B1A1A; }
+.player-count { font-size: 12px; color: #888; }
 
 .player-works { flex-shrink: 0; text-align: right; }
 .works-label { font-size: 11px; color: #bbb; margin-bottom: 4px; }
-.work-item { font-size: 12px; color: #8B1A1A; font-family: 'STKaiti', 'KaiTi', serif; margin-bottom: 2px; }
+.work-item { font-size: 12px; color: #555; font-family: 'STKaiti','KaiTi',serif; margin-bottom: 2px; }
 
-/* 棋手详情 */
-.detail-back {
-  font-size: 13px;
-  color: #8B1A1A;
-  cursor: pointer;
-  margin-bottom: 20px;
-  display: inline-block;
-}
-.detail-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #ece8e0;
-  border-radius: 4px;
-  margin-bottom: 32px;
-}
-.detail-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: 4px;
-  background: #8B1A1A;
-  color: #fff;
-  font-size: 28px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
-.detail-name { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; font-family: 'STKaiti', 'KaiTi', serif; }
+.detail-back { font-size: 13px; color: #555; cursor: pointer; margin-bottom: 20px; display: inline-block; }
+.detail-back:hover { color: #1a1a1a; }
+.detail-header { display: flex; align-items: flex-start; gap: 24px; padding: 24px; background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; margin-bottom: 32px; }
+.detail-avatar { width: 68px; height: 68px; border-radius: 4px; background: #e8e8e8; color: #444; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'STKaiti','KaiTi',serif; }
+.detail-name { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; font-family: 'STKaiti','KaiTi',serif; }
 .detail-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .meta-item { font-size: 12px; color: #888; }
-.title-tag {
-  font-size: 11px;
-  color: #8B1A1A;
-  border: 1px solid rgba(139,26,26,0.3);
-  padding: 1px 6px;
-  border-radius: 2px;
-}
+.title-tag { font-size: 11px; color: #666; border: 1px solid #ddd; padding: 1px 6px; border-radius: 2px; }
 .detail-bio { font-size: 13px; color: #666; line-height: 1.8; }
 
-.player-manuals { }
-.manuals-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 20px;
-  font-family: 'STKaiti', 'KaiTi', serif;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ece8e0;
-}
+.manuals-title { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; font-family: 'STKaiti','KaiTi',serif; padding-bottom: 10px; border-bottom: 1px solid #e8e8e8; }
 
-/* 书籍网格（复用） */
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 24px 20px;
-}
-.book-card {
-  position: relative;
-  width: 120px;
-  height: 170px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  display: flex;
-}
-.book-card:hover { transform: translateY(-4px) rotate(-1deg); }
-.book-card:hover .book-face { box-shadow: 6px 6px 18px rgba(0,0,0,0.25); }
+.books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 24px 20px; }
+.book-card { position: relative; width: 120px; height: 170px; cursor: pointer; transition: transform 0.2s; display: flex; }
+.book-card:hover { transform: translateY(-3px); }
+.book-card:hover .book-face { box-shadow: 4px 6px 16px rgba(0,0,0,0.12); }
 
-.book-spine {
-  width: 18px;
-  flex-shrink: 0;
-  background: #8B1A1A;
-  border-radius: 2px 0 0 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-.spine-char { font-size: 10px; color: rgba(255,255,255,0.6); font-family: 'STKaiti', 'KaiTi', serif; }
+.book-spine { width: 18px; flex-shrink: 0; background: #2a2a2a; border-radius: 2px 0 0 2px; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.spine-char { font-size: 10px; color: rgba(255,255,255,0.4); font-family: 'STKaiti','KaiTi',serif; }
 
-.book-face {
-  flex: 1;
-  background: #f5e6c0;
-  border: 1px solid #c9a96e;
-  border-left: none;
-  border-radius: 0 3px 3px 0;
-  padding: 8px 6px 8px 8px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 3px 3px 10px rgba(0,0,0,0.15);
-  position: relative;
-  overflow: hidden;
-}
-.book-face::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 18px, rgba(180,140,60,0.07) 18px, rgba(180,140,60,0.07) 19px);
-  pointer-events: none;
-}
-.book-vip {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #8B1A1A;
-  color: #f4c842;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
+.book-face { flex: 1; background: #f8f7f5; border: 1px solid #ddd; border-left: none; border-radius: 0 3px 3px 0; padding: 8px 6px 8px 8px; display: flex; flex-direction: column; box-shadow: 2px 3px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+.book-vip { position: absolute; top: 5px; right: 5px; width: 15px; height: 15px; border-radius: 50%; background: #444; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'STKaiti','KaiTi',serif; }
 .book-title-wrap { flex: 1; display: flex; align-items: flex-start; padding-top: 2px; }
-.book-title {
-  writing-mode: vertical-rl;
-  font-size: 13px;
-  font-weight: 700;
-  color: #2c1a08;
-  font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
-  line-height: 1.4;
-  letter-spacing: 1px;
-  max-height: 100px;
-  overflow: hidden;
-}
-.book-cat { font-size: 10px; color: #8a6a3a; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.book-title { writing-mode: vertical-rl; font-size: 13px; font-weight: 700; color: #222; font-family: 'STKaiti','KaiTi','SimSun',serif; line-height: 1.4; letter-spacing: 1px; max-height: 100px; overflow: hidden; }
+.book-cat { font-size: 10px; color: #aaa; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .book-diff { display: flex; gap: 3px; }
-.diff-dot { width: 5px; height: 5px; border-radius: 50%; background: #d4b880; }
-.diff-dot.filled { background: #8B1A1A; }
-.book-pages {
-  position: absolute;
-  right: -5px;
-  top: 3px;
-  bottom: 3px;
-  width: 5px;
-  background: repeating-linear-gradient(to bottom, #f0e4b8, #f0e4b8 1px, #e8d4a0 1px, #e8d4a0 2px);
-  border-radius: 0 2px 2px 0;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-}
+.diff-dot { width: 5px; height: 5px; border-radius: 50%; background: #e0e0e0; }
+.diff-dot.filled { background: #888; }
+.book-pages { position: absolute; right: -4px; top: 3px; bottom: 3px; width: 4px; background: #eee; border-radius: 0 2px 2px 0; }
 
 .empty-tip { color: #ccc; font-size: 14px; padding: 60px; text-align: center; }
 </style>

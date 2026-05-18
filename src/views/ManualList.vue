@@ -52,7 +52,6 @@
           v-for="item in list"
           :key="item.id"
           class="book-card"
-          :class="'dynasty-' + getDynastyClass(item.dynasty)"
           @click="$router.push('/manuals/' + item.id)"
         >
           <!-- 书脊 -->
@@ -184,238 +183,57 @@ export default {
 </script>
 
 <style scoped>
-.manual-list-page { background: #faf8f5; min-height: calc(100vh - 56px); padding-bottom: 60px; }
+.manual-list-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
 
-.page-header { padding: 36px 0 24px; border-bottom: 1px solid #ece8e0; margin-bottom: 24px; }
-.page-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-  font-family: 'STKaiti', 'KaiTi', serif;
-  letter-spacing: 2px;
-}
+.page-header { padding: 36px 0 24px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
+.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; font-family: 'STKaiti','KaiTi',serif; letter-spacing: 2px; }
 .page-desc { font-size: 13px; color: #aaa; }
 
-/* 分类标签 */
-.cat-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.cat-tab {
-  padding: 5px 16px;
-  font-size: 13px;
-  color: #666;
-  border: 1px solid #e0dbd0;
-  border-radius: 2px;
-  cursor: pointer;
-  background: #fff;
-  transition: all 0.15s;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
-.cat-tab:hover { border-color: #8B1A1A; color: #8B1A1A; }
-.cat-tab.active { background: #8B1A1A; border-color: #8B1A1A; color: #fff; }
+.cat-tabs { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e8e8e8; }
+.cat-tab { padding: 8px 16px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; font-family: 'STKaiti','KaiTi',serif; }
+.cat-tab:hover { color: #333; }
+.cat-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
 
-/* 筛选栏 */
-.filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.search-input {
-  width: 240px;
-  height: 34px;
-  padding: 0 12px;
-  border: 1px solid #e0dbd0;
-  border-radius: 2px;
-  font-size: 13px;
-  background: #fff;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.search-input:focus { border-color: #8B1A1A; }
-.diff-tabs { display: flex; gap: 4px; }
-.diff-tab {
-  padding: 4px 12px;
-  font-size: 12px;
-  color: #888;
-  cursor: pointer;
-  border-radius: 2px;
-  transition: all 0.1s;
-}
-.diff-tab:hover { color: #8B1A1A; }
-.diff-tab.active { background: #fdf0f0; color: #8B1A1A; font-weight: 600; }
+.filter-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.search-input { width: 240px; height: 32px; padding: 0 12px; border: 1px solid #e8e8e8; border-radius: 2px; font-size: 13px; background: #fff; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: #333; }
+.diff-tabs { display: flex; gap: 2px; }
+.diff-tab { padding: 4px 12px; font-size: 12px; color: #aaa; cursor: pointer; transition: color 0.1s; }
+.diff-tab:hover { color: #555; }
+.diff-tab.active { color: #1a1a1a; font-weight: 600; }
 
 .result-bar { font-size: 12px; color: #bbb; margin-bottom: 20px; }
-.result-bar strong { color: #8B1A1A; }
+.result-bar strong { color: #555; }
 .loading-tip { color: #bbb; font-size: 14px; padding: 60px 0; text-align: center; }
 .empty-tip { color: #ccc; font-size: 14px; padding: 60px; text-align: center; grid-column: 1/-1; }
 
-/* 书籍网格 */
-.books-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 24px 20px;
-}
+.books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 24px 20px; }
 
-/* 书籍卡片 */
-.book-card {
-  position: relative;
-  width: 130px;
-  height: 185px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  display: flex;
-}
-.book-card:hover { transform: translateY(-4px) rotate(-1deg); }
-.book-card:hover .book-face { box-shadow: 6px 6px 18px rgba(0,0,0,0.25); }
+.book-card { position: relative; width: 130px; height: 185px; cursor: pointer; transition: transform 0.2s; display: flex; }
+.book-card:hover { transform: translateY(-3px); }
+.book-card:hover .book-face { box-shadow: 4px 6px 16px rgba(0,0,0,0.12); }
 
-/* 书脊 */
-.book-spine {
-  width: 20px;
-  flex-shrink: 0;
-  border-radius: 2px 0 0 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-}
-.dynasty-ming .book-spine { background: #8B1A1A; }
-.dynasty-qing .book-spine { background: #1a4a8b; }
-.dynasty-modern .book-spine { background: #1a5c2a; }
-.dynasty-ancient .book-spine { background: #5c3d1a; }
-.dynasty-default .book-spine { background: #555; }
+.book-spine { width: 20px; flex-shrink: 0; background: #2a2a2a; border-radius: 2px 0 0 2px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+.spine-cat { writing-mode: vertical-rl; font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 1px; font-family: 'STKaiti','KaiTi',serif; }
 
-.spine-cat {
-  writing-mode: vertical-rl;
-  font-size: 10px;
-  color: rgba(255,255,255,0.7);
-  letter-spacing: 1px;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
+.book-face { flex: 1; background: #f8f7f5; border: 1px solid #ddd; border-left: none; border-radius: 0 3px 3px 0; padding: 10px 8px 10px 10px; display: flex; flex-direction: column; box-shadow: 2px 3px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
 
-/* 书面 */
-.book-face {
-  flex: 1;
-  background: #f5e6c0;
-  border: 1px solid #c9a96e;
-  border-left: none;
-  border-radius: 0 3px 3px 0;
-  padding: 10px 8px 10px 10px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 3px 3px 10px rgba(0,0,0,0.18);
-  position: relative;
-  overflow: hidden;
-}
+.book-vip { position: absolute; top: 6px; right: 6px; width: 16px; height: 16px; border-radius: 50%; background: #444; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: 'STKaiti','KaiTi',serif; }
 
-/* 老纸纹理 */
-.book-face::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 18px,
-    rgba(180,140,60,0.08) 18px,
-    rgba(180,140,60,0.08) 19px
-  );
-  pointer-events: none;
-}
+.book-title-wrap { flex: 1; display: flex; align-items: flex-start; padding-top: 4px; }
+.book-title { writing-mode: vertical-rl; font-size: 14px; font-weight: 700; color: #222; font-family: 'STKaiti','KaiTi','SimSun',serif; line-height: 1.4; letter-spacing: 1px; max-height: 110px; overflow: hidden; text-overflow: ellipsis; }
 
-.book-vip {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #8B1A1A;
-  color: #f4c842;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'STKaiti', 'KaiTi', serif;
-}
+.book-author { font-size: 10px; color: #888; font-family: 'STKaiti','KaiTi',serif; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.book-dynasty { font-size: 10px; color: #aaa; font-family: 'STKaiti','KaiTi',serif; margin-bottom: 6px; }
+.book-diff { display: flex; gap: 3px; }
+.diff-dot { width: 5px; height: 5px; border-radius: 50%; background: #e0e0e0; }
+.diff-dot.filled { background: #888; }
 
-.book-title-wrap {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  padding-top: 4px;
-}
-.book-title {
-  writing-mode: vertical-rl;
-  font-size: 14px;
-  font-weight: 700;
-  color: #2c1a08;
-  font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
-  line-height: 1.4;
-  letter-spacing: 1px;
-  max-height: 110px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.book-pages { position: absolute; right: -4px; top: 3px; bottom: 3px; width: 4px; background: #eee; border-radius: 0 2px 2px 0; }
 
-.book-author {
-  font-size: 10px;
-  color: #8a6a3a;
-  font-family: 'STKaiti', 'KaiTi', serif;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.book-dynasty {
-  font-size: 10px;
-  color: #b09060;
-  font-family: 'STKaiti', 'KaiTi', serif;
-  margin-bottom: 6px;
-}
-.book-diff {
-  display: flex;
-  gap: 3px;
-}
-.diff-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #d4b880;
-}
-.diff-dot.filled { background: #8B1A1A; }
-
-/* 书页厚度效果 */
-.book-pages {
-  position: absolute;
-  right: -5px;
-  top: 3px;
-  bottom: 3px;
-  width: 5px;
-  background: repeating-linear-gradient(
-    to bottom,
-    #f0e4b8,
-    #f0e4b8 1px,
-    #e8d4a0 1px,
-    #e8d4a0 2px
-  );
-  border-radius: 0 2px 2px 0;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-}
-
-.pagination-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-}
-.pagination-wrap >>> .el-pagination.is-background .el-pager li.active { background: #8B1A1A; }
+.pagination-wrap { display: flex; justify-content: center; margin-top: 40px; }
+.pagination-wrap >>> .el-pagination.is-background .el-pager li.active { background: #333; }
 
 @media (max-width: 768px) {
   .books-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; }

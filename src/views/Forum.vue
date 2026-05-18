@@ -25,10 +25,10 @@
           <h2 class="post-title">{{ currentTopic.title }}</h2>
           <div class="post-content">{{ currentTopic.content }}</div>
           <div class="post-footer">
-            <span class="stat-item"><i class="stat-icon">👁</i>{{ currentTopic.views }} 浏览</span>
-            <span class="stat-item"><i class="stat-icon">💬</i>{{ currentTopic.replies.length }} 回复</span>
+            <span class="stat-item">{{ currentTopic.views }} 浏览</span>
+            <span class="stat-item">{{ currentTopic.replies.length }} 回复</span>
             <span class="like-btn" :class="{ liked: currentTopic.liked }" @click="likeTopic(currentTopic)">
-              ♥ {{ currentTopic.likes }}
+              {{ currentTopic.likes }} 赞
             </span>
           </div>
         </div>
@@ -52,7 +52,7 @@
                 <span class="post-time">{{ reply.createdAt }}</span>
               </div>
               <span class="like-btn small" :class="{ liked: reply.liked }" @click="likeReply(reply)">
-                ♥ {{ reply.likes }}
+                {{ reply.likes }} 赞
               </span>
             </div>
             <div class="post-content">{{ reply.content }}</div>
@@ -198,13 +198,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-const AVATAR_COLORS = ['#8B1A1A','#1a4a8b','#1a5c2a','#5c3d1a','#7b3f8c','#c46b00','#2a6c6c']
-
-function hashColor(str) {
-  let h = 0
-  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
-}
+function hashColor() { return '#e8e8e8' }
 
 let nextId = 100
 
@@ -420,67 +414,40 @@ export default {
 </script>
 
 <style scoped>
-.forum-page { background: #faf8f5; min-height: calc(100vh - 56px); padding-bottom: 60px; }
+.forum-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
 .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
-.page-header { padding: 36px 0 20px; border-bottom: 1px solid #e8e0d0; margin-bottom: 24px; }
+.page-header { padding: 36px 0 20px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
 .page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; font-family: 'STKaiti','KaiTi',serif; margin: 0 0 6px; }
-.page-desc { font-size: 13px; color: #888; margin: 0; }
+.page-desc { font-size: 13px; color: #aaa; margin: 0; }
 
-/* 工具栏 */
-.forum-toolbar {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
-}
-.cat-tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
-.cat-tab {
-  padding: 5px 14px; font-size: 13px; color: #666; border-radius: 16px;
-  cursor: pointer; transition: all 0.15s; background: #f0ece4; border: 1px solid transparent;
-}
-.cat-tab:hover { color: #8B1A1A; }
-.cat-tab.active { background: #8B1A1A; color: #fff; border-color: #8B1A1A; }
-.new-topic-btn { flex-shrink: 0; }
-.new-topic-link { font-size: 13px; color: #8B1A1A; flex-shrink: 0; }
+.forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0; }
+.cat-tabs { display: flex; gap: 0; flex: 1; border-bottom: 1px solid #e8e8e8; flex-wrap: wrap; }
+.cat-tab { padding: 7px 14px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
+.cat-tab:hover { color: #333; }
+.cat-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
+.new-topic-btn { flex-shrink: 0; margin-bottom: 1px; }
+.new-topic-link { font-size: 13px; color: #555; flex-shrink: 0; }
 
-/* 排序 */
-.sort-bar { display: flex; gap: 16px; margin-bottom: 16px; }
-.sort-item { font-size: 13px; color: #999; cursor: pointer; }
-.sort-item.active { color: #8B1A1A; font-weight: 600; }
-.sort-item.active::after { content: ''; display: block; height: 2px; background: #8B1A1A; border-radius: 1px; }
+.sort-bar { display: flex; gap: 16px; margin: 14px 0; }
+.sort-item { font-size: 13px; color: #aaa; cursor: pointer; transition: color 0.1s; }
+.sort-item:hover { color: #555; }
+.sort-item.active { color: #1a1a1a; font-weight: 600; }
 
-/* 话题行 */
-.topic-list { background: #fff; border-radius: 8px; border: 1px solid #e8e0d0; overflow: hidden; }
-.topic-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 18px; border-bottom: 1px solid #f0ece4;
-  cursor: pointer; transition: background 0.15s;
-}
+.topic-list { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+.topic-row { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
 .topic-row:last-child { border-bottom: none; }
-.topic-row:hover { background: #fdf9f3; }
+.topic-row:hover { background: #f5f5f5; }
 
-.topic-avatar {
-  width: 38px; height: 38px; border-radius: 50%; color: #fff;
-  font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.topic-avatar { width: 36px; height: 36px; border-radius: 4px; background: #e8e8e8; color: #555; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .topic-main { flex: 1; min-width: 0; }
 .topic-top-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
 .topic-bottom-row { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #aaa; }
 .topic-title { font-size: 14px; color: #222; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.topic-author { color: #8B1A1A; }
-.dot { color: #ccc; }
+.topic-author { color: #555; }
+.dot { color: #ddd; }
 .last-reply { color: #aaa; }
-.pin-badge {
-  background: #8B1A1A; color: #fff; font-size: 11px;
-  padding: 1px 6px; border-radius: 3px; flex-shrink: 0;
-}
-.topic-cat-tag {
-  font-size: 11px; padding: 1px 7px; border-radius: 3px; flex-shrink: 0;
-  font-weight: 500;
-}
-.topic-cat-tag.opening  { background: #fff3e0; color: #e65100; }
-.topic-cat-tag.endgame  { background: #e8f5e9; color: #2e7d32; }
-.topic-cat-tag.tournament { background: #e3f2fd; color: #1565c0; }
-.topic-cat-tag.player   { background: #f3e5f5; color: #6a1b9a; }
-.topic-cat-tag.general  { background: #f5f5f5; color: #555; }
+.pin-badge { background: #333; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 2px; flex-shrink: 0; }
+.topic-cat-tag { font-size: 11px; padding: 1px 7px; border-radius: 2px; flex-shrink: 0; color: #666; border: 1px solid #e8e8e8; background: #fafafa; }
 
 .topic-stats { display: flex; gap: 16px; flex-shrink: 0; }
 .stat-col { text-align: center; min-width: 36px; }
@@ -490,56 +457,35 @@ export default {
 .empty-tip { padding: 48px 0; text-align: center; color: #bbb; font-size: 14px; }
 .loading-tip { padding: 40px 0; text-align: center; color: #aaa; }
 
-/* 话题详情 */
-.detail-back {
-  display: inline-block; padding: 6px 0; margin-bottom: 16px;
-  font-size: 13px; color: #8B1A1A; cursor: pointer;
-}
-.detail-back:hover { text-decoration: underline; }
+.detail-back { display: inline-block; padding: 6px 0; margin-bottom: 16px; font-size: 13px; color: #555; cursor: pointer; }
+.detail-back:hover { color: #1a1a1a; }
 
-.post-card {
-  background: #fff; border: 1px solid #e8e0d0; border-radius: 8px;
-  padding: 20px 24px; margin-bottom: 12px;
-}
-.original-post { border-left: 3px solid #8B1A1A; }
+.post-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 20px 24px; margin-bottom: 10px; }
+.original-post { border-left: 3px solid #333; }
 
 .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.post-avatar {
-  width: 36px; height: 36px; border-radius: 50%; color: #fff;
-  font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
+.post-avatar { width: 34px; height: 34px; border-radius: 4px; background: #e8e8e8; color: #555; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .post-avatar.small { width: 28px; height: 28px; font-size: 12px; }
 .post-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .post-author { font-size: 13px; font-weight: 600; color: #222; }
 .post-time { font-size: 12px; color: #bbb; }
 .post-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 0 0 14px; line-height: 1.5; }
 .post-content { font-size: 14px; color: #444; line-height: 1.8; white-space: pre-wrap; }
-.post-footer { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0ece4; font-size: 13px; color: #aaa; }
+.post-footer { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #aaa; }
 .stat-item { display: flex; align-items: center; gap: 4px; }
-.stat-icon { font-style: normal; }
-.like-btn {
-  margin-left: auto; cursor: pointer; color: #bbb; font-size: 13px;
-  padding: 3px 10px; border-radius: 14px; border: 1px solid #e8e0d0;
-  transition: all 0.15s;
-}
-.like-btn:hover, .like-btn.liked { color: #c0392b; border-color: #c0392b; }
+.like-btn { margin-left: auto; cursor: pointer; color: #bbb; font-size: 13px; padding: 3px 12px; border-radius: 2px; border: 1px solid #e8e8e8; transition: all 0.15s; }
+.like-btn:hover, .like-btn.liked { color: #333; border-color: #333; }
 .like-btn.small { margin-left: auto; }
 
-/* 回复区 */
 .replies-section { margin-top: 8px; }
 .replies-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 12px; padding-left: 4px; }
 .empty-replies { text-align: center; padding: 32px 0; color: #bbb; font-size: 13px; }
-.reply-card { border-left: 3px solid #e8e0d0; }
+.reply-card { border-left: 3px solid #e8e8e8; }
 .reply-floor { font-size: 12px; color: #bbb; min-width: 24px; }
 
-/* 发表回复 */
-.reply-box {
-  background: #fff; border: 1px solid #e8e0d0; border-radius: 8px;
-  padding: 20px 24px; margin-top: 12px;
-}
+.reply-box { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 20px 24px; margin-top: 10px; }
 .reply-box-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 14px; }
 .login-tip { font-size: 13px; color: #aaa; padding: 12px 0; }
-.login-tip a { color: #8B1A1A; }
+.login-tip a { color: #333; }
 .reply-submit-row { margin-top: 10px; text-align: right; }
 </style>
