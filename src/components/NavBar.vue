@@ -8,6 +8,7 @@
         <router-link to="/tournaments" class="nav-item" active-class="active">赛事</router-link>
         <router-link to="/players" class="nav-item" active-class="active">棋手</router-link>
         <router-link to="/resources" class="nav-item" active-class="active">资源</router-link>
+        <router-link to="/forum" class="nav-item" active-class="active">论坛</router-link>
       </nav>
       <div class="nav-right">
         <template v-if="isLoggedIn && userInfo">

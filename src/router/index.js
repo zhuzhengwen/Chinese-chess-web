@@ -11,6 +11,7 @@ const routes = [
   { path: '/tournaments', component: () => import('../views/Tournament.vue') },
   { path: '/players', component: () => import('../views/Player.vue') },
   { path: '/resources', component: () => import('../views/Resources.vue') },
+  { path: '/forum', component: () => import('../views/Forum.vue') },
   { path: '/subscribe', component: () => import('../views/Subscribe.vue') },
   { path: '/user', component: () => import('../views/User.vue'), meta: { requiresAuth: true } },
   { path: '/login', component: () => import('../views/Login.vue') }
