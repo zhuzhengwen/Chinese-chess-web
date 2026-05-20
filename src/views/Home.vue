@@ -29,7 +29,6 @@
         <div v-else class="manual-grid">
           <div v-for="item in recommendedList" :key="item.id" class="manual-card" @click="$router.push('/manuals/' + item.id)">
             <div class="card-top">
-              <span v-if="item.isPremium || item.premium" class="vip-badge">VIP</span>
             </div>
             <div class="card-title">{{ item.title }}</div>
             <div class="card-meta">{{ item.dynasty }}·{{ item.author }}</div>
@@ -95,8 +94,8 @@ export default {
           { id: 2, title: '梅花谱·屏风马', dynasty: '清', author: '张乔栋', difficulty: 4 },
           { id: 3, title: '适情雅趣·残局', dynasty: '清', author: '佚名', difficulty: 2 },
           { id: 4, title: '韬略元机·开局', dynasty: '明', author: '颜丙', difficulty: 3 },
-          { id: 5, title: '竹香斋·全局', dynasty: '清', author: '张志', difficulty: 5, isPremium: true },
-          { id: 6, title: '渊深海阔·残局', dynasty: '清', author: '佚名', difficulty: 4, isPremium: true }
+          { id: 5, title: '竹香斋·全局', dynasty: '清', author: '张志', difficulty: 5, isPremium: false },
+          { id: 6, title: '渊深海阔·残局', dynasty: '清', author: '佚名', difficulty: 4, isPremium: false }
         ]
       } finally { this.loadingRecommended = false }
     }
@@ -113,7 +112,7 @@ export default {
 .btn-start { background: #fff !important; color: #8B1A1A !important; border-color: #fff !important; font-weight: 700; padding: 12px 36px; font-size: 15px; }
 .btn-member { background: transparent !important; color: #fff !important; border-color: rgba(255,255,255,0.6) !important; font-weight: 600; padding: 12px 36px; font-size: 15px; }
 .stats-section { background: #fff; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.container { padding: 0 24px; }
 .stats-row { display: flex; }
 .stat-card { flex: 1; padding: 28px 16px; text-align: center; border-right: 1px solid #f0f0f0; }
 .stat-card:last-child { border-right: none; }
@@ -122,29 +121,29 @@ export default {
 .section { padding: 40px 0; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .section-title { font-size: 22px; font-weight: 700; color: #1a1a1a; padding-left: 12px; position: relative; }
-.section-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 20px; background: #8B1A1A; border-radius: 2px; }
+.section-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 20px; background: #8B1A1A; border-radius: 0; }
 .more-link { font-size: 13px; color: #8B1A1A; text-decoration: none; }
 .manual-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.manual-card { background: #fff; border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.manual-card { background: #fff; border-radius: 0; padding: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 .manual-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
 .card-top { min-height: 20px; margin-bottom: 8px; }
-.vip-badge { display: inline-block; background: linear-gradient(135deg, #e6a817, #f4c842); color: #fff; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 3px; }
+.vip-badge { display: inline-block; background: linear-gradient(135deg, #e6a817, #f4c842); color: #fff; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 0; }
 .card-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
 .card-meta { font-size: 13px; color: #999; margin-bottom: 10px; }
 .card-stars { font-size: 14px; }
 .loading-area { text-align: center; color: #999; padding: 40px; font-size: 14px; }
 .empty-tip { color: #bbb; font-size: 14px; grid-column: 1/-1; text-align: center; padding: 30px; }
 .classic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.classic-card { background: #fff; border-radius: 10px; padding: 28px 16px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.classic-card { background: #fff; border-radius: 0; padding: 28px 16px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 .classic-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(139,26,26,0.15); }
-.classic-icon { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8B1A1A, #c0392b); color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.classic-icon { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #8B1A1A, #2a9fd6); color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
 .classic-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
 .classic-desc { font-size: 12px; color: #999; }
 .vip-banner { background: linear-gradient(135deg, #2c1810, #4a2020); padding: 40px 24px; }
-.vip-banner-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.vip-banner-inner { padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
 .vip-text h3 { font-size: 22px; font-weight: 700; color: #f4c842; margin-bottom: 8px; }
 .vip-text p { font-size: 14px; color: rgba(255,255,255,0.7); }
-.vip-cta-btn { background: linear-gradient(135deg, #e6a817, #f4c842) !important; color: #5C0000 !important; border: none !important; font-weight: 700; font-size: 15px; padding: 14px 40px; border-radius: 8px; }
+.vip-cta-btn { background: linear-gradient(135deg, #e6a817, #f4c842) !important; color: #5C0000 !important; border: none !important; font-weight: 700; font-size: 15px; padding: 14px 40px; border-radius: 0; }
 @media (max-width: 768px) {
   .manual-grid { grid-template-columns: repeat(2, 1fr); }
   .classic-grid { grid-template-columns: repeat(2, 1fr); }
@@ -152,3 +151,4 @@ export default {
   .hero-title { font-size: 36px; }
 }
 </style>
+

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="user-page">
     <div class="container">
       <div class="profile-row">
@@ -185,7 +185,7 @@ export default {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #8B1A1A;
+  background: #2a9fd6;
   color: #fff;
   font-size: 22px;
   font-weight: 700;
@@ -201,32 +201,32 @@ export default {
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
-  color: #8B1A1A;
-  border: 1px solid #8B1A1A;
+  color: #2a9fd6;
+  border: 1px solid #2a9fd6;
   padding: 1px 8px;
-  border-radius: 2px;
+  border-radius: 0;
   letter-spacing: 1px;
 }
 .free-label { font-size: 13px; color: #bbb; }
-.upgrade-link { color: #8B1A1A; cursor: pointer; }
+.upgrade-link { color: #2a9fd6; cursor: pointer; }
 .logout-btn {
   background: none;
   border: 1px solid #e8e8e8;
   padding: 6px 14px;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 13px;
   color: #888;
   cursor: pointer;
   transition: border-color 0.15s;
 }
-.logout-btn:hover { border-color: #8B1A1A; color: #8B1A1A; }
+.logout-btn:hover { border-color: #2a9fd6; color: #2a9fd6; }
 
 /* stats */
 .stats-bar {
   display: flex;
   align-items: center;
   border: 1px solid #f0f0f0;
-  border-radius: 6px;
+  border-radius: 0;
   overflow: hidden;
   margin-bottom: 32px;
 }
@@ -244,7 +244,7 @@ export default {
 
 /* two col */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.col-block { border: 1px solid #f0f0f0; border-radius: 6px; overflow: hidden; }
+.col-block { border: 1px solid #f0f0f0; border-radius: 0; overflow: hidden; }
 .col-title {
   padding: 14px 16px;
   font-size: 13px;
@@ -263,7 +263,7 @@ export default {
   font-size: 13px;
   color: #bbb;
 }
-.empty-link { color: #8B1A1A; cursor: pointer; font-size: 12px; }
+.empty-link { color: #2a9fd6; cursor: pointer; font-size: 12px; }
 
 /* list rows */
 .list-row {
@@ -280,8 +280,8 @@ export default {
 .row-cover {
   width: 36px;
   height: 36px;
-  border-radius: 4px;
-  background: #8B1A1A;
+  border-radius: 0;
+  background: #2a9fd6;
   color: #fff;
   font-size: 14px;
   font-weight: 800;
@@ -310,9 +310,10 @@ export default {
   padding: 2px 4px;
   transition: color 0.15s;
 }
-.remove-fav:hover { color: #c0392b; }
+.remove-fav:hover { color: #2a9fd6; }
 
 @media (max-width: 768px) {
   .two-col { grid-template-columns: 1fr; }
 }
 </style>
+

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="subscribe-page">
     <div class="container">
       <div class="page-header">
@@ -165,8 +165,8 @@ export default {
 </script>
 
 <style scoped>
-.subscribe-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 48px; }
-.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+.subscribe-page { padding-bottom: 24px; }
+.container { width: 100%; max-width: 860px; }
 .page-header { padding: 36px 0 24px; border-bottom: 1px solid #f0f0f0; margin-bottom: 32px; text-align: center; }
 .page-title { font-size: 24px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
 .page-desc { font-size: 13px; color: #aaa; }
@@ -178,7 +178,7 @@ export default {
   gap: 16px;
   padding: 12px 16px;
   border: 1px solid #f0f0f0;
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 13px;
   color: #555;
   margin-bottom: 24px;
@@ -192,20 +192,20 @@ export default {
 .plan-card {
   flex: 1;
   border: 1px solid #f0f0f0;
-  border-radius: 6px;
+  border-radius: 0;
   padding: 28px 20px;
   text-align: center;
   position: relative;
   transition: border-color 0.15s;
 }
 .plan-card:hover { border-color: #ddd; }
-.plan-card.featured { border-color: #8B1A1A; }
+.plan-card.featured { border-color: #2a9fd6; }
 .featured-tag {
   position: absolute;
   top: -1px;
   left: 50%;
   transform: translateX(-50%);
-  background: #8B1A1A;
+  background: #2a9fd6;
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -215,8 +215,8 @@ export default {
 }
 .plan-name { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; margin-top: 8px; }
 .plan-price-area { display: flex; align-items: baseline; justify-content: center; gap: 2px; margin-bottom: 4px; }
-.plan-currency { font-size: 16px; color: #8B1A1A; font-weight: 600; }
-.plan-price { font-size: 40px; font-weight: 800; color: #8B1A1A; line-height: 1; }
+.plan-currency { font-size: 16px; color: #2a9fd6; font-weight: 600; }
+.plan-price { font-size: 40px; font-weight: 800; color: #2a9fd6; line-height: 1; }
 .plan-unit { font-size: 13px; color: #bbb; }
 .plan-origin { font-size: 12px; color: #ccc; text-decoration: line-through; margin-bottom: 20px; }
 
@@ -230,29 +230,29 @@ export default {
   align-items: center;
   gap: 6px;
 }
-.plan-features li::before { content: '·'; color: #8B1A1A; font-weight: 700; }
+.plan-features li::before { content: '·'; color: #2a9fd6; font-weight: 700; }
 .plan-features li:last-child { border-bottom: none; }
 
 .subscribe-btn {
   width: 100%;
   height: 40px;
-  border: 1px solid #8B1A1A;
+  border: 1px solid #2a9fd6;
   background: #fff;
-  color: #8B1A1A;
+  color: #2a9fd6;
   font-size: 14px;
   font-weight: 600;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
   transition: opacity 0.15s;
 }
 .subscribe-btn:hover { opacity: 0.85; }
 .subscribe-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.subscribe-btn--featured { background: #8B1A1A; color: #fff; }
+.subscribe-btn--featured { background: #2a9fd6; color: #fff; }
 
 /* compare */
 .compare-section, .faq-section { margin-bottom: 40px; }
 .sub-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; }
-.compare-table { border: 1px solid #f0f0f0; border-radius: 6px; overflow: hidden; }
+.compare-table { border: 1px solid #f0f0f0; border-radius: 0; overflow: hidden; }
 .compare-head {
   display: flex;
   padding: 10px 16px;
@@ -274,10 +274,10 @@ export default {
 .col-free, .col-vip { width: 120px; text-align: center; flex-shrink: 0; }
 .check { color: #27ae60; font-style: normal; font-weight: 700; }
 .cross { color: #ddd; font-style: normal; }
-.vip-val { color: #8B1A1A; font-weight: 600; }
+.vip-val { color: #2a9fd6; font-weight: 600; }
 
 /* faq */
-.faq-list { border: 1px solid #f0f0f0; border-radius: 6px; overflow: hidden; }
+.faq-list { border: 1px solid #f0f0f0; border-radius: 0; overflow: hidden; }
 .faq-item { padding: 16px; border-bottom: 1px solid #f5f5f5; }
 .faq-item:last-child { border-bottom: none; }
 .faq-q { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
@@ -287,3 +287,4 @@ export default {
   .plans-row { flex-direction: column; }
 }
 </style>
+

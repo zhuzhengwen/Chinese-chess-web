@@ -1,204 +1,274 @@
 <template>
   <div class="forum-page">
-    <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">论坛</h1>
-        <p class="page-desc">棋友交流，共探象棋之道</p>
-      </div>
 
-      <!-- 话题详情视图 -->
-      <div v-if="currentTopic" class="topic-detail">
-        <div class="detail-back" @click="backToList">← 返回论坛</div>
+    <div class="forum-layout">
 
-        <!-- 原帖 -->
-        <div class="post-card original-post">
-          <div class="post-header">
-            <div class="post-avatar" :style="{ background: avatarColor(currentTopic.author) }">
-              {{ currentTopic.author.charAt(0) }}
-            </div>
-            <div class="post-meta">
-              <span class="post-author">{{ currentTopic.author }}</span>
-              <span class="post-time">{{ currentTopic.createdAt }}</span>
-            </div>
-            <span class="topic-cat-tag" :class="currentTopic.category">{{ catLabel(currentTopic.category) }}</span>
+      <!-- ───────── 主内容 ───────── -->
+      <div class="forum-main">
+
+        <!-- 工具栏：搜索 + 分类标签（与 Resources / Tournament 一致） -->
+        <div class="toolbar">
+          <div class="search-bar">
+            <input
+              v-model="keyword"
+              type="text"
+              placeholder="搜索话题标题、作者…"
+              class="search-input"
+              @input="currentTopic = null"
+            />
+            <button v-if="keyword" class="clear-btn" @click="keyword = ''">✕</button>
           </div>
-          <h2 class="post-title">{{ currentTopic.title }}</h2>
-          <div class="post-content">{{ currentTopic.content }}</div>
-          <div class="post-footer">
-            <span class="stat-item">{{ currentTopic.views }} 浏览</span>
-            <span class="stat-item">{{ currentTopic.replies.length }} 回复</span>
-            <span class="like-btn" :class="{ liked: currentTopic.liked }" @click="likeTopic(currentTopic)">
-              {{ currentTopic.likes }} 赞
-            </span>
+          <div class="cat-tabs">
+            <button
+              v-for="cat in categories"
+              :key="cat.val"
+              :class="['cat-tab', { active: selectedCat === cat.val }]"
+              @click="selectedCat = cat.val; currentTopic = null"
+            >{{ cat.label }}</button>
+          </div>
+          <div class="toolbar-right">
+            <div class="sort-tabs">
+              <span
+                v-for="s in sorts"
+                :key="s.val"
+                :class="['sort-tab', { active: selectedSort === s.val }]"
+                @click="selectedSort = s.val"
+              >{{ s.label }}</span>
+            </div>
+            <button v-if="isLoggedIn" class="new-topic-btn" @click="showNewTopic = true">+ 发起话题</button>
+            <router-link v-else to="/login" class="new-topic-btn">登录后发帖</router-link>
           </div>
         </div>
 
-        <!-- 回复列表 -->
-        <div class="replies-section">
-          <div class="replies-title">全部回复 ({{ currentTopic.replies.length }})</div>
-          <div v-if="currentTopic.replies.length === 0" class="empty-replies">暂无回复，来说第一句吧</div>
-          <div
-            v-for="(reply, idx) in currentTopic.replies"
-            :key="reply.id"
-            class="post-card reply-card"
-          >
+        <!-- ── 帖子详情 ── -->
+        <div v-if="currentTopic" class="topic-detail">
+          <div class="detail-back" @click="backToList">← 返回列表</div>
+
+          <!-- 原帖 -->
+          <div class="post-card original-post">
             <div class="post-header">
-              <div class="reply-floor">#{{ idx + 1 }}</div>
-              <div class="post-avatar small" :style="{ background: avatarColor(reply.author) }">
-                {{ reply.author.charAt(0) }}
+              <div class="post-avatar" :style="{ background: avatarBg(currentTopic.author) }">
+                {{ currentTopic.author.charAt(0) }}
               </div>
               <div class="post-meta">
-                <span class="post-author">{{ reply.author }}</span>
-                <span class="post-time">{{ reply.createdAt }}</span>
+                <span class="post-author">{{ currentTopic.author }}</span>
+                <span class="post-time">{{ currentTopic.createdAt }}</span>
               </div>
-              <span class="like-btn small" :class="{ liked: reply.liked }" @click="likeReply(reply)">
-                {{ reply.likes }} 赞
+              <span class="cat-badge" :class="currentTopic.category">{{ catLabel(currentTopic.category) }}</span>
+            </div>
+            <h2 class="post-title">{{ currentTopic.title }}</h2>
+            <div class="post-content">{{ currentTopic.content }}</div>
+
+            <!-- 附件棋谱 -->
+            <div v-if="currentTopic.attachment" class="manual-card">
+              <div class="manual-card-header" @click="currentTopic.attachment._open = !currentTopic.attachment._open">
+                <span class="manual-card-icon">♟</span>
+                <span class="manual-card-title">{{ currentTopic.attachment.title || '附件棋谱' }}</span>
+                <span class="manual-card-count">{{ currentTopic.attachment.moves.length }} 步</span>
+                <span class="manual-card-toggle">{{ currentTopic.attachment._open ? '收起 ▲' : '展开 ▼' }}</span>
+              </div>
+              <div v-if="currentTopic.attachment._open" class="manual-card-body">
+                <div class="moves-grid">
+                  <div
+                    v-for="(move, i) in currentTopic.attachment.moves"
+                    :key="i"
+                    :class="['move-item', i % 2 === 0 ? 'red' : 'black']"
+                  >
+                    <span class="move-num">{{ Math.floor(i / 2) + 1 }}{{ i % 2 === 0 ? '.' : '…' }}</span>
+                    <span class="move-text">{{ move }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="post-footer">
+              <span class="footer-stat">{{ currentTopic.views }} 浏览</span>
+              <span class="footer-stat">{{ currentTopic.replies.length }} 回复</span>
+              <span :class="['like-btn', { liked: currentTopic.liked }]" @click="likeTopic(currentTopic)">
+                ♥ {{ currentTopic.likes }}
               </span>
             </div>
-            <div class="post-content">{{ reply.content }}</div>
+          </div>
+
+          <!-- 回复列表 -->
+          <div class="replies-section">
+            <div class="section-title">全部回复（{{ currentTopic.replies.length }}）</div>
+            <div class="list-wrap">
+              <div v-if="currentTopic.replies.length === 0" class="empty-tip">暂无回复，来说第一句吧</div>
+              <div
+                v-for="(reply, idx) in currentTopic.replies"
+                :key="reply.id"
+                class="reply-row"
+              >
+                <span class="floor-num">#{{ idx + 1 }}</span>
+                <div class="post-avatar small" :style="{ background: avatarBg(reply.author) }">
+                  {{ reply.author.charAt(0) }}
+                </div>
+                <div class="reply-body">
+                  <div class="reply-head">
+                    <span class="post-author">{{ reply.author }}</span>
+                    <span class="post-time">{{ reply.createdAt }}</span>
+                    <span :class="['like-btn', 'small', { liked: reply.liked }]" @click="likeReply(reply)">
+                      ♥ {{ reply.likes }}
+                    </span>
+                  </div>
+                  <div class="post-content">{{ reply.content }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 发表回复 -->
+          <div class="reply-box">
+            <div class="section-title">发表回复</div>
+            <div v-if="!isLoggedIn" class="login-tip">
+              请 <router-link to="/login">登录</router-link> 后发表回复
+            </div>
+            <template v-else>
+              <textarea
+                v-model="replyContent"
+                rows="4"
+                placeholder="写下你的回复…"
+                maxlength="2000"
+                class="reply-textarea"
+              />
+              <div class="reply-submit-row">
+                <button class="btn-confirm" :disabled="submitting" @click="submitReply">
+                  {{ submitting ? '提交中…' : '发表回复' }}
+                </button>
+              </div>
+            </template>
           </div>
         </div>
 
-        <!-- 发表回复 -->
-        <div class="reply-box">
-          <div class="reply-box-title">发表回复</div>
-          <div v-if="!isLoggedIn" class="login-tip">
-            请 <router-link to="/login">登录</router-link> 后发表回复
+        <!-- ── 话题列表 ── -->
+        <div v-else>
+          <div v-if="loading" class="loading-tip">加载中…</div>
+          <div v-else class="list-wrap">
+            <div
+              v-for="topic in filteredTopics"
+              :key="topic.id"
+              class="topic-row"
+              @click="openTopic(topic)"
+            >
+              <div class="topic-avatar" :style="{ background: avatarBg(topic.author) }">
+                {{ topic.author.charAt(0) }}
+              </div>
+              <div class="topic-body">
+                <div class="topic-title-row">
+                  <span v-if="topic.pinned" class="pin-badge">置顶</span>
+                  <span class="topic-title">{{ topic.title }}</span>
+                  <span v-if="topic.attachment" class="attach-badge" title="含附件棋谱">♟ 棋谱</span>
+                </div>
+                <div class="topic-meta-row">
+                  <span class="meta-item">{{ topic.author }}</span>
+                  <span class="meta-sep">·</span>
+                  <span class="meta-item">{{ topic.views }} 浏览</span>
+                  <span class="meta-sep">·</span>
+                  <span class="meta-item">{{ topic.replies.length }} 回复</span>
+                  <template v-if="topic.lastReplyAuthor">
+                    <span class="meta-sep">·</span>
+                    <span class="meta-item">最后回复：{{ topic.lastReplyAuthor }}</span>
+                  </template>
+                  <span class="meta-sep">·</span>
+                  <span class="meta-item">{{ topic.updatedAt }}</span>
+                </div>
+              </div>
+              <span class="cat-badge" :class="topic.category">{{ catLabel(topic.category) }}</span>
+            </div>
+            <div v-if="filteredTopics.length === 0" class="empty-tip">暂无话题，快来发起讨论吧</div>
           </div>
-          <template v-else>
-            <el-input
-              type="textarea"
-              v-model="replyContent"
-              :rows="4"
-              placeholder="写下你的回复…"
-              maxlength="2000"
-              show-word-limit
-            />
-            <div class="reply-submit-row">
-              <el-button type="primary" size="small" :loading="submitting" @click="submitReply">发表回复</el-button>
+
+          <!-- 分页 -->
+          <div class="pagination-wrap">
+            <span class="total-count">共 {{ filteredTopics.length }} 个话题</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ── 发起话题弹窗 ── -->
+    <div v-if="showNewTopic" class="dialog-mask" @click.self="showNewTopic = false">
+      <div class="dialog">
+        <div class="dialog-header">
+          <span>发起话题</span>
+          <button class="dialog-close" @click="showNewTopic = false">✕</button>
+        </div>
+        <div class="dialog-body">
+          <div class="form-field">
+            <label>分类</label>
+            <select v-model="newTopicForm.category">
+              <option v-for="cat in postCategories" :key="cat.val" :value="cat.val">{{ cat.label }}</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>标题</label>
+            <input v-model="newTopicForm.title" type="text" maxlength="60" placeholder="请输入话题标题" />
+          </div>
+          <div class="form-field">
+            <label>内容</label>
+            <textarea v-model="newTopicForm.content" rows="5" maxlength="5000" placeholder="详细描述你的话题内容…" />
+          </div>
+
+          <!-- 附件棋谱 -->
+          <div class="attach-toggle" @click="newTopicForm.attachEnabled = !newTopicForm.attachEnabled">
+            <span class="attach-icon">♟</span>
+            <span class="attach-label">{{ newTopicForm.attachEnabled ? '取消附件棋谱' : '添加附件棋谱' }}</span>
+            <span class="attach-arrow">{{ newTopicForm.attachEnabled ? '▲' : '▼' }}</span>
+          </div>
+
+          <template v-if="newTopicForm.attachEnabled">
+            <div class="attach-box">
+              <div class="form-field">
+                <label>棋谱名称</label>
+                <input v-model="newTopicForm.attachTitle" type="text" maxlength="40" placeholder="例：当头炮对屏风马·第三局" />
+              </div>
+              <div class="form-field">
+                <label>棋步记录 <span class="label-hint">每行一步，红黑交替，例：炮二平五 / 炮８平５</span></label>
+                <textarea
+                  v-model="newTopicForm.attachMoves"
+                  rows="6"
+                  placeholder="炮二平五&#10;炮８平５&#10;马二进三&#10;马８进７&#10;…"
+                  class="moves-textarea"
+                />
+              </div>
+              <div class="attach-preview" v-if="parsedMoves.length">
+                <span class="preview-label">已录入 {{ parsedMoves.length }} 步</span>
+                <div class="preview-moves">
+                  <span
+                    v-for="(m, i) in parsedMoves.slice(0, 10)"
+                    :key="i"
+                    :class="['preview-move', i % 2 === 0 ? 'red' : 'black']"
+                  >{{ m }}</span>
+                  <span v-if="parsedMoves.length > 10" class="preview-more">…共 {{ parsedMoves.length }} 步</span>
+                </div>
+              </div>
             </div>
           </template>
         </div>
-      </div>
-
-      <!-- 话题列表视图 -->
-      <div v-else class="forum-main">
-        <!-- 顶部操作栏 -->
-        <div class="forum-toolbar">
-          <div class="cat-tabs">
-            <span
-              v-for="cat in categories"
-              :key="cat.val"
-              class="cat-tab"
-              :class="{ active: selectedCat === cat.val }"
-              @click="selectedCat = cat.val"
-            >{{ cat.label }}</span>
-          </div>
-          <el-button
-            v-if="isLoggedIn"
-            type="primary"
-            size="small"
-            class="new-topic-btn"
-            @click="showNewTopic = true"
-          >+ 发起话题</el-button>
-          <router-link v-else to="/login" class="new-topic-link">登录后发帖</router-link>
-        </div>
-
-        <!-- 排序切换 -->
-        <div class="sort-bar">
-          <span
-            v-for="s in sorts"
-            :key="s.val"
-            class="sort-item"
-            :class="{ active: selectedSort === s.val }"
-            @click="selectedSort = s.val"
-          >{{ s.label }}</span>
-        </div>
-
-        <div v-if="loading" class="loading-tip">加载中…</div>
-
-        <!-- 话题列表 -->
-        <div v-else class="topic-list">
-          <div
-            v-for="topic in filteredTopics"
-            :key="topic.id"
-            class="topic-row"
-            @click="openTopic(topic)"
-          >
-            <div class="topic-avatar" :style="{ background: avatarColor(topic.author) }">
-              {{ topic.author.charAt(0) }}
-            </div>
-            <div class="topic-main">
-              <div class="topic-top-row">
-                <span v-if="topic.pinned" class="pin-badge">置顶</span>
-                <span class="topic-cat-tag" :class="topic.category">{{ catLabel(topic.category) }}</span>
-                <span class="topic-title">{{ topic.title }}</span>
-              </div>
-              <div class="topic-bottom-row">
-                <span class="topic-author">{{ topic.author }}</span>
-                <span class="dot">·</span>
-                <span class="topic-time">{{ topic.updatedAt }}</span>
-                <span v-if="topic.lastReplyAuthor" class="last-reply">
-                  <span class="dot">·</span>最后回复：{{ topic.lastReplyAuthor }}
-                </span>
-              </div>
-            </div>
-            <div class="topic-stats">
-              <div class="stat-col">
-                <div class="stat-num">{{ topic.replies.length }}</div>
-                <div class="stat-label">回复</div>
-              </div>
-              <div class="stat-col">
-                <div class="stat-num">{{ topic.views }}</div>
-                <div class="stat-label">浏览</div>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="filteredTopics.length === 0" class="empty-tip">暂无话题，快来发起讨论吧</div>
+        <div class="dialog-footer">
+          <button class="btn-cancel" @click="showNewTopic = false">取消</button>
+          <button class="btn-confirm" :disabled="submitting" @click="submitNewTopic">
+            {{ submitting ? '发布中…' : '发布' }}
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- 发起话题对话框 -->
-    <el-dialog title="发起话题" :visible.sync="showNewTopic" width="560px" :close-on-click-modal="false">
-      <el-form :model="newTopicForm" label-width="70px" size="small">
-        <el-form-item label="分类">
-          <el-select v-model="newTopicForm.category" style="width:100%">
-            <el-option
-              v-for="cat in postCategories"
-              :key="cat.val"
-              :label="cat.label"
-              :value="cat.val"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="标题">
-          <el-input v-model="newTopicForm.title" maxlength="60" show-word-limit placeholder="请输入话题标题" />
-        </el-form-item>
-        <el-form-item label="内容">
-          <el-input
-            type="textarea"
-            v-model="newTopicForm.content"
-            :rows="6"
-            maxlength="5000"
-            show-word-limit
-            placeholder="详细描述你的话题内容…"
-          />
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
-        <el-button size="small" @click="showNewTopic = false">取消</el-button>
-        <el-button type="primary" size="small" :loading="submitting" @click="submitNewTopic">发布</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapState } from 'vuex'
 
-function hashColor() { return '#e8e8e8' }
+const AVATAR_COLORS = ['#2a9fd6','#2980b9','#27ae60','#8e44ad','#d35400','#16a085','#2c3e50','#8B1A1A']
+function avatarBg(name) {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
+}
 
 let nextId = 100
 
@@ -211,12 +281,9 @@ const mockTopics = [
     lastReplyAuthor: '残局高手',
     content: '当头炮对屏风马是最经典的开局之一。近期研究发现红方第五手走马八进七和马二进三各有优劣，大家怎么看？欢迎分享实战经验和研究心得。',
     replies: [
-      { id: 11, author: '残局高手', createdAt: '2026-05-16 09:14', likes: 12, liked: false,
-        content: '个人偏好马八进七，中路压力更大，对方屏风马形难以展开。但遇到软化变例需要提前准备。' },
-      { id: 12, author: '攻杀流', createdAt: '2026-05-17 14:33', likes: 8, liked: false,
-        content: '马二进三更稳健，保持阵型完整性。职业比赛中两者都有用，看个人风格。' },
-      { id: 13, author: '初学象棋', createdAt: '2026-05-17 18:04', likes: 3, liked: false,
-        content: '作为初学者，感觉马八进七更容易理解，变化相对少一些，实战效果不错。' }
+      { id: 11, author: '残局高手', createdAt: '2026-05-16 09:14', likes: 12, liked: false, content: '个人偏好马八进七，中路压力更大，对方屏风马形难以展开。但遇到软化变例需要提前准备。' },
+      { id: 12, author: '攻杀流',   createdAt: '2026-05-17 14:33', likes: 8,  liked: false, content: '马二进三更稳健，保持阵型完整性。职业比赛中两者都有用，看个人风格。' },
+      { id: 13, author: '初学象棋', createdAt: '2026-05-17 18:04', likes: 3,  liked: false, content: '作为初学者，感觉马八进七更容易理解，变化相对少一些，实战效果不错。' }
     ]
   },
   {
@@ -225,12 +292,10 @@ const mockTopics = [
     author: '残局高手', views: 976, likes: 28, liked: false,
     createdAt: '2026-05-14 20:10', updatedAt: '2026-05-16 11:30',
     lastReplyAuthor: '棋道求索',
-    content: '整理了常见的车马胜单车定式，包括"马低兵胜车"和"车马联攻"两种基本形态，附图解说明，希望对大家残局学习有帮助。\n\n一、马低兵胜车：马在高位配合低兵，利用将门限制对方车的活动空间……',
+    content: '整理了常见的车马胜单车定式，包括"马低兵胜车"和"车马联攻"两种基本形态，附图解说明，希望对大家残局学习有帮助。',
     replies: [
-      { id: 21, author: '棋道求索', createdAt: '2026-05-15 08:45', likes: 15, liked: false,
-        content: '整理得很全面！补充一点：车马胜单车还需注意"闷车"战术，当对方车陷入角落时胜率大增。' },
-      { id: 22, author: '研究党', createdAt: '2026-05-16 11:30', likes: 7, liked: false,
-        content: '感谢分享，这类定式是残局基础，建议新手反复练习。' }
+      { id: 21, author: '棋道求索', createdAt: '2026-05-15 08:45', likes: 15, liked: false, content: '整理得很全面！补充一点：车马胜单车还需注意"闷车"战术，当对方车陷入角落时胜率大增。' },
+      { id: 22, author: '研究党',   createdAt: '2026-05-16 11:30', likes: 7,  liked: false, content: '感谢分享，这类定式是残局基础，建议新手反复练习。' }
     ]
   },
   {
@@ -241,10 +306,8 @@ const mockTopics = [
     lastReplyAuthor: '攻杀流',
     content: '昨天全国赛半决赛，王天一执红对阵谢靖，开局走飞相局对挺卒，中盘出现精彩的马炮换双车牺牲，最终以一步"车踩中兵"奠定胜局。大家一起来复盘！',
     replies: [
-      { id: 31, author: '棋谱收藏家', createdAt: '2026-05-11 09:22', likes: 20, liked: false,
-        content: '那步马炮换双车真是神来之笔，牺牲物质换取绝对攻势，体现了王天一对局面的深刻理解。' },
-      { id: 32, author: '攻杀流', createdAt: '2026-05-14 22:17', likes: 11, liked: false,
-        content: '最后车踩中兵之后红方胜势已成，但谢靖的防御也相当顽强，拖到最后关头才认负。' }
+      { id: 31, author: '棋谱收藏家', createdAt: '2026-05-11 09:22', likes: 20, liked: false, content: '那步马炮换双车真是神来之笔，牺牲物质换取绝对攻势，体现了王天一对局面的深刻理解。' },
+      { id: 32, author: '攻杀流',     createdAt: '2026-05-14 22:17', likes: 11, liked: false, content: '最后车踩中兵之后红方胜势已成，但谢靖的防御也相当顽强，拖到最后关头才认负。' }
     ]
   },
   {
@@ -255,10 +318,8 @@ const mockTopics = [
     lastReplyAuthor: '历史研究者',
     content: '胡荣华先生创造了全国象棋个人赛九连冠的传奇纪录，其开局研究深度远超时代。本帖梳理其标志性的"仙人指路"和"飞相局"体系，欢迎共同研究。',
     replies: [
-      { id: 41, author: '古谱爱好者', createdAt: '2026-05-09 14:00', likes: 18, liked: false,
-        content: '胡老的棋风以灵活多变著称，同一局面往往有多套应对方案，这种"预备系统"的思想在当时非常超前。' },
-      { id: 42, author: '历史研究者', createdAt: '2026-05-12 16:55', likes: 9, liked: false,
-        content: '补充：胡老晚年接受采访时提到，开局最重要的是"掌握主动"，宁可牺牲一子也要争夺先手。' }
+      { id: 41, author: '古谱爱好者', createdAt: '2026-05-09 14:00', likes: 18, liked: false, content: '胡老的棋风以灵活多变著称，同一局面往往有多套应对方案，这种"预备系统"的思想在当时非常超前。' },
+      { id: 42, author: '历史研究者', createdAt: '2026-05-12 16:55', likes: 9,  liked: false, content: '补充：胡老晚年接受采访时提到，开局最重要的是"掌握主动"，宁可牺牲一子也要争夺先手。' }
     ]
   },
   {
@@ -267,10 +328,9 @@ const mockTopics = [
     author: '书单达人', views: 890, likes: 22, liked: false,
     createdAt: '2026-05-06 09:00', updatedAt: '2026-05-10 19:48',
     lastReplyAuthor: '初学象棋',
-    content: '整理了几本适合入门和进阶的象棋书籍推荐：\n1.《象棋入门》——基础规则与简单战术\n2.《七十二局》——经典古谱精讲\n3.《象棋残局大全》——系统学习残局\n4.《当头炮全攻略》——专项开局训练\n希望对大家有帮助！',
+    content: '整理了几本适合入门和进阶的象棋书籍推荐：\n1.《象棋入门》——基础规则与简单战术\n2.《七十二局》——经典古谱精讲\n3.《象棋残局大全》——系统学习残局\n4.《当头炮全攻略》——专项开局训练',
     replies: [
-      { id: 51, author: '初学象棋', createdAt: '2026-05-10 19:48', likes: 14, liked: false,
-        content: '感谢推荐！《七十二局》已经在看了，确实是经典，每一局都有深度。' }
+      { id: 51, author: '初学象棋', createdAt: '2026-05-10 19:48', likes: 14, liked: false, content: '感谢推荐！《七十二局》已经在看了，确实是经典，每一局都有深度。' }
     ]
   },
   {
@@ -281,8 +341,7 @@ const mockTopics = [
     lastReplyAuthor: '棋道求索',
     content: '顺炮局面中红方早出直车是常见的积极战法，黑方应对如不慎重容易陷入被动。本帖讨论黑方几种常见应对思路，欢迎交流。',
     replies: [
-      { id: 61, author: '棋道求索', createdAt: '2026-05-08 10:20', likes: 8, liked: false,
-        content: '黑方横车反击是常见思路，但时机很重要。过早出横车可能被红方"塞象眼"战术限制。' }
+      { id: 61, author: '棋道求索', createdAt: '2026-05-08 10:20', likes: 8, liked: false, content: '黑方横车反击是常见思路，但时机很重要。过早出横车可能被红方"塞象眼"战术限制。' }
     ]
   }
 ]
@@ -292,20 +351,26 @@ export default {
   computed: {
     ...mapGetters('user', ['isLoggedIn']),
     ...mapState('user', ['userInfo']),
+    currentUsername() {
+      return this.userInfo ? (this.userInfo.nickname || this.userInfo.phone) : ''
+    },
+    parsedMoves() {
+      return this.newTopicForm.attachMoves
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s.length > 0)
+    },
     filteredTopics() {
       let list = this.topics
-      if (this.selectedCat !== 'all') {
-        list = list.filter(t => t.category === this.selectedCat)
-      }
+      if (this.selectedCat !== 'all') list = list.filter(t => t.category === this.selectedCat)
+      const kw = this.keyword.trim().toLowerCase()
+      if (kw) list = list.filter(t => t.title.toLowerCase().includes(kw) || t.author.toLowerCase().includes(kw))
       const pinned = list.filter(t => t.pinned)
       const normal = list.filter(t => !t.pinned)
-      if (this.selectedSort === 'latest') {
-        normal.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
-      } else if (this.selectedSort === 'hot') {
-        normal.sort((a, b) => (b.views + b.replies.length * 10) - (a.views + a.replies.length * 10))
-      }
+      if (this.selectedSort === 'hot') normal.sort((a, b) => (b.views + b.replies.length * 10) - (a.views + a.replies.length * 10))
+      else normal.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
       return [...pinned, ...normal]
-    }
+    },
   },
   data() {
     return {
@@ -314,36 +379,36 @@ export default {
       currentTopic: null,
       selectedCat: 'all',
       selectedSort: 'latest',
+      keyword: '',
       showNewTopic: false,
       submitting: false,
       replyContent: '',
-      newTopicForm: { category: 'general', title: '', content: '' },
+      newTopicForm: { category: 'general', title: '', content: '', attachEnabled: false, attachTitle: '', attachMoves: '' },
       categories: [
-        { val: 'all', label: '全部' },
-        { val: 'opening', label: '开局研究' },
-        { val: 'endgame', label: '残局讨论' },
+        { val: 'all',        label: '全部' },
+        { val: 'opening',    label: '开局研究' },
+        { val: 'endgame',    label: '残局讨论' },
         { val: 'tournament', label: '赛事讨论' },
-        { val: 'player', label: '棋手话题' },
-        { val: 'general', label: '综合交流' }
+        { val: 'player',     label: '棋手话题' },
+        { val: 'general',    label: '综合交流' }
       ],
       postCategories: [
-        { val: 'opening', label: '开局研究' },
-        { val: 'endgame', label: '残局讨论' },
+        { val: 'opening',    label: '开局研究' },
+        { val: 'endgame',    label: '残局讨论' },
         { val: 'tournament', label: '赛事讨论' },
-        { val: 'player', label: '棋手话题' },
-        { val: 'general', label: '综合交流' }
+        { val: 'player',     label: '棋手话题' },
+        { val: 'general',    label: '综合交流' }
       ],
       sorts: [
         { val: 'latest', label: '最新回复' },
-        { val: 'hot', label: '最热话题' }
+        { val: 'hot',    label: '最热话题' }
       ]
     }
   },
   methods: {
-    avatarColor(name) { return hashColor(name) },
+    avatarBg,
     catLabel(val) {
-      const map = { opening:'开局',endgame:'残局',tournament:'赛事',player:'棋手',general:'综合' }
-      return map[val] || val
+      return { opening:'开局', endgame:'残局', tournament:'赛事', player:'棋手', general:'综合' }[val] || val
     },
     openTopic(topic) {
       topic.views++
@@ -351,141 +416,438 @@ export default {
       this.replyContent = ''
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
-    backToList() {
-      this.currentTopic = null
-    },
+    backToList() { this.currentTopic = null },
     likeTopic(topic) {
-      if (!this.isLoggedIn) { this.$message.warning('请先登录'); return }
+      if (!this.isLoggedIn) { this.$message && this.$message.warning('请先登录'); return }
       topic.liked = !topic.liked
       topic.likes += topic.liked ? 1 : -1
     },
     likeReply(reply) {
-      if (!this.isLoggedIn) { this.$message.warning('请先登录'); return }
+      if (!this.isLoggedIn) { this.$message && this.$message.warning('请先登录'); return }
       reply.liked = !reply.liked
       reply.likes += reply.liked ? 1 : -1
     },
     submitReply() {
-      if (!this.replyContent.trim()) { this.$message.warning('回复内容不能为空'); return }
+      if (!this.replyContent.trim()) { this.$message && this.$message.warning('回复内容不能为空'); return }
       this.submitting = true
       setTimeout(() => {
-        const now = new Date()
-        const pad = n => String(n).padStart(2,'0')
-        const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+        const ts = this.nowTs()
         const author = this.userInfo ? (this.userInfo.nickname || this.userInfo.phone) : '匿名用户'
-        this.currentTopic.replies.push({
-          id: nextId++, author, createdAt: ts, likes: 0, liked: false,
-          content: this.replyContent.trim()
-        })
+        this.currentTopic.replies.push({ id: nextId++, author, createdAt: ts, likes: 0, liked: false, content: this.replyContent.trim() })
         this.currentTopic.lastReplyAuthor = author
         this.currentTopic.updatedAt = ts
         this.replyContent = ''
         this.submitting = false
-        this.$message.success('回复成功')
+        this.$message && this.$message.success('回复成功')
         this.$nextTick(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }))
       }, 600)
     },
     submitNewTopic() {
-      if (!this.newTopicForm.title.trim()) { this.$message.warning('请填写话题标题'); return }
-      if (!this.newTopicForm.content.trim()) { this.$message.warning('请填写话题内容'); return }
+      if (!this.newTopicForm.title.trim()) { this.$message && this.$message.warning('请填写话题标题'); return }
+      if (!this.newTopicForm.content.trim()) { this.$message && this.$message.warning('请填写话题内容'); return }
       this.submitting = true
       setTimeout(() => {
-        const now = new Date()
-        const pad = n => String(n).padStart(2,'0')
-        const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`
+        const ts = this.nowTs()
         const author = this.userInfo ? (this.userInfo.nickname || this.userInfo.phone) : '匿名用户'
+        const attachment = (this.newTopicForm.attachEnabled && this.parsedMoves.length)
+          ? { title: this.newTopicForm.attachTitle.trim() || '附件棋谱', moves: this.parsedMoves, _open: false }
+          : null
         this.topics.unshift({
           id: nextId++, pinned: false,
           category: this.newTopicForm.category,
           title: this.newTopicForm.title.trim(),
           author, views: 0, likes: 0, liked: false,
-          createdAt: ts, updatedAt: ts,
-          lastReplyAuthor: null,
+          createdAt: ts, updatedAt: ts, lastReplyAuthor: null,
           content: this.newTopicForm.content.trim(),
+          attachment,
           replies: []
         })
-        this.newTopicForm = { category: 'general', title: '', content: '' }
+        this.newTopicForm = { category: 'general', title: '', content: '', attachEnabled: false, attachTitle: '', attachMoves: '' }
         this.showNewTopic = false
         this.submitting = false
-        this.$message.success('话题发布成功')
+        this.$message && this.$message.success('话题发布成功')
       }, 600)
+    },
+    nowTs() {
+      const now = new Date()
+      const p = n => String(n).padStart(2, '0')
+      return `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())} ${p(now.getHours())}:${p(now.getMinutes())}`
     }
   }
 }
 </script>
 
 <style scoped>
-.forum-page { background: #fff; min-height: calc(100vh - 56px); padding-bottom: 60px; }
-.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
-.page-header { padding: 36px 0 20px; border-bottom: 1px solid #e8e8e8; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; margin: 0 0 6px; }
-.page-desc { font-size: 13px; color: #aaa; margin: 0; }
+/* ── 页面结构 ── */
+.forum-page { padding-bottom: 48px; }
 
-.forum-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0; }
-.cat-tabs { display: flex; gap: 0; flex: 1; border-bottom: 1px solid #e8e8e8; flex-wrap: wrap; }
-.cat-tab { padding: 7px 14px; font-size: 13px; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; }
-.cat-tab:hover { color: #333; }
-.cat-tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #1a1a1a; }
-.new-topic-btn { flex-shrink: 0; margin-bottom: 1px; }
-.new-topic-link { font-size: 13px; color: #555; flex-shrink: 0; }
+/* 主布局 */
+.forum-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.forum-main { flex: 1; min-width: 0; }
 
-.sort-bar { display: flex; gap: 16px; margin: 14px 0; }
-.sort-item { font-size: 13px; color: #aaa; cursor: pointer; transition: color 0.1s; }
-.sort-item:hover { color: #555; }
-.sort-item.active { color: #1a1a1a; font-weight: 600; }
+/* ── 工具栏（与 Resources / Tournament 完全一致） ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.search-bar {
+  position: relative;
+  min-width: 160px;
+  max-width: 240px;
+}
+.search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 32px 0 12px;
+  font-size: 14px;
+  color: #333;
+  border: 1px solid #d6eaf5;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: #2a9fd6; }
+.search-input::placeholder { color: #ccc; }
+.clear-btn {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  color: #bbb; cursor: pointer; font-size: 13px; padding: 0;
+}
+.clear-btn:hover { color: #888; }
 
-.topic-list { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
-.topic-row { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
+/* 分类标签（与 Resources cat-tabs 完全一致） */
+.cat-tabs {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #d6eaf5;
+}
+.cat-tab {
+  padding: 0 14px;
+  height: 38px;
+  font-size: 12px;
+  color: #999;
+  cursor: pointer;
+  border: none;
+  background: #fff;
+  transition: all 0.12s;
+}
+.cat-tab + .cat-tab { border-left: 1px solid #d6eaf5; }
+.cat-tab:hover:not(.active) { background: #e8f4fb; color: #2a9fd6; }
+.cat-tab.active { background: #2a9fd6; color: #fff; font-weight: 600; }
+
+/* 排序 + 发帖按钮 */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.sort-tabs { display: flex; gap: 0; }
+.sort-tab {
+  font-size: 12px; color: #999; cursor: pointer;
+  padding: 2px 8px 2px 0; background: none; border: none;
+  transition: color 0.12s;
+}
+.sort-tab:hover   { color: #2a9fd6; }
+.sort-tab.active  { color: #2a9fd6; font-weight: 600; }
+.new-topic-btn {
+  height: 38px; padding: 0 16px;
+  background: #2a9fd6; color: #fff;
+  border: none; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: background 0.15s;
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.new-topic-btn:hover { background: #1a8ac0; }
+
+/* ── 话题列表（与 Resources list-wrap 完全一致） ── */
+.list-wrap {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  overflow: hidden;
+}
+.topic-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #f4f4f4;
+  cursor: pointer;
+  transition: background 0.1s;
+}
 .topic-row:last-child { border-bottom: none; }
-.topic-row:hover { background: #f5f5f5; }
+.topic-row:hover { background: #fafafa; }
+.topic-row:hover .topic-title { color: #2a9fd6; }
 
-.topic-avatar { width: 36px; height: 36px; border-radius: 4px; background: #e8e8e8; color: #555; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.topic-main { flex: 1; min-width: 0; }
-.topic-top-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-.topic-bottom-row { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #aaa; }
-.topic-title { font-size: 14px; color: #222; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.topic-author { color: #555; }
-.dot { color: #ddd; }
-.last-reply { color: #aaa; }
-.pin-badge { background: #333; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 2px; flex-shrink: 0; }
-.topic-cat-tag { font-size: 11px; padding: 1px 7px; border-radius: 2px; flex-shrink: 0; color: #666; border: 1px solid #e8e8e8; background: #fafafa; }
+.topic-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.topic-body { flex: 1; min-width: 0; }
+.topic-title-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+}
+.topic-title {
+  font-size: 14px; font-weight: 500; color: #333;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: color 0.12s;
+}
+.pin-badge {
+  background: #2a9fd6; color: #fff;
+  font-size: 10px; padding: 1px 5px; flex-shrink: 0;
+}
+.topic-meta-row {
+  display: flex; align-items: center; flex-wrap: wrap;
+  font-size: 12px;
+}
+.meta-item { color: #bbb; }
+.meta-sep  { color: #e0e0e0; margin: 0 4px; }
 
-.topic-stats { display: flex; gap: 16px; flex-shrink: 0; }
-.stat-col { text-align: center; min-width: 36px; }
-.stat-num { font-size: 15px; font-weight: 600; color: #333; }
-.stat-label { font-size: 11px; color: #aaa; }
+/* 分类徽章（与 Resources cat-tag 完全一致） */
+.cat-badge {
+  font-size: 11px; padding: 2px 7px; flex-shrink: 0; font-weight: 500;
+}
+.cat-badge.opening    { background: #e6f4ff; color: #2a9fd6;  border: 1px solid #b8dff2; }
+.cat-badge.endgame    { background: #f0faf2; color: #52b26b;  border: 1px solid #c3e8cc; }
+.cat-badge.tournament { background: #fdf8e8; color: #e6a817;  border: 1px solid #f5dfa0; }
+.cat-badge.player     { background: #f5f0ff; color: #7c3aed;  border: 1px solid #ddd6fe; }
+.cat-badge.general    { background: #f5f5f5; color: #888;     border: 1px solid #e0e0e0; }
 
-.empty-tip { padding: 48px 0; text-align: center; color: #bbb; font-size: 14px; }
-.loading-tip { padding: 40px 0; text-align: center; color: #aaa; }
+.empty-tip    { padding: 48px 0; text-align: center; color: #ccc; font-size: 14px; }
+.loading-tip  { padding: 40px 0; text-align: center; color: #bbb; font-size: 14px; }
 
-.detail-back { display: inline-block; padding: 6px 0; margin-bottom: 16px; font-size: 13px; color: #555; cursor: pointer; }
-.detail-back:hover { color: #1a1a1a; }
+/* 分页 */
+.pagination-wrap {
+  display: flex; align-items: center; gap: 16px; padding: 14px 0 4px;
+}
+.total-count { font-size: 13px; color: #bbb; }
 
-.post-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 20px 24px; margin-bottom: 10px; }
-.original-post { border-left: 3px solid #333; }
+/* ── 帖子详情 ── */
+.topic-detail { display: flex; flex-direction: column; gap: 12px; }
+.detail-back {
+  font-size: 13px; color: #999; cursor: pointer;
+  padding: 4px 0 6px; display: inline-block; transition: color 0.12s;
+}
+.detail-back:hover { color: #2a9fd6; }
 
-.post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.post-avatar { width: 34px; height: 34px; border-radius: 4px; background: #e8e8e8; color: #555; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.post-avatar.small { width: 28px; height: 28px; font-size: 12px; }
-.post-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.post-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  padding: 20px;
+}
+.original-post { border-left: 3px solid #8B1A1A; }
+
+.post-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.post-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.post-avatar.small { width: 26px; height: 26px; font-size: 11px; }
+.post-meta { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .post-author { font-size: 13px; font-weight: 600; color: #222; }
-.post-time { font-size: 12px; color: #bbb; }
-.post-title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 0 0 14px; line-height: 1.5; }
-.post-content { font-size: 14px; color: #444; line-height: 1.8; white-space: pre-wrap; }
-.post-footer { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #aaa; }
-.stat-item { display: flex; align-items: center; gap: 4px; }
-.like-btn { margin-left: auto; cursor: pointer; color: #bbb; font-size: 13px; padding: 3px 12px; border-radius: 2px; border: 1px solid #e8e8e8; transition: all 0.15s; }
-.like-btn:hover, .like-btn.liked { color: #333; border-color: #333; }
+.post-time   { font-size: 11px; color: #bbb; }
+.post-title  { font-size: 18px; font-weight: 700; color: #111; margin: 0 0 14px; line-height: 1.5; }
+.post-content {
+  font-size: 14px; color: #444; line-height: 1.85; white-space: pre-wrap;
+}
+.post-footer {
+  display: flex; align-items: center; gap: 16px;
+  margin-top: 16px; padding-top: 12px; border-top: 1px solid #f4f4f4;
+  font-size: 12px; color: #bbb;
+}
+.like-btn {
+  margin-left: auto; cursor: pointer; color: #bbb; font-size: 12px;
+  padding: 3px 10px; border: 1px solid #e8e8e8; background: none;
+  transition: all 0.15s;
+}
+.like-btn:hover, .like-btn.liked { color: #8B1A1A; border-color: #8B1A1A; }
 .like-btn.small { margin-left: auto; }
 
-.replies-section { margin-top: 8px; }
-.replies-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 12px; padding-left: 4px; }
-.empty-replies { text-align: center; padding: 32px 0; color: #bbb; font-size: 13px; }
-.reply-card { border-left: 3px solid #e8e8e8; }
-.reply-floor { font-size: 12px; color: #bbb; min-width: 24px; }
+/* 回复区 */
+.section-title {
+  font-size: 14px; font-weight: 700; color: #333;
+  margin-bottom: 10px; padding-left: 10px; position: relative;
+}
+.section-title::before {
+  content: ''; position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%); width: 3px; height: 14px; background: #8B1A1A;
+}
+.replies-section { display: flex; flex-direction: column; gap: 0; }
 
-.reply-box { background: #fff; border: 1px solid #e8e8e8; border-radius: 4px; padding: 20px 24px; margin-top: 10px; }
-.reply-box-title { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 14px; }
-.login-tip { font-size: 13px; color: #aaa; padding: 12px 0; }
-.login-tip a { color: #333; }
+.reply-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid #f4f4f4;
+}
+.reply-row:last-child { border-bottom: none; }
+.floor-num { font-size: 11px; color: #ccc; min-width: 22px; padding-top: 2px; }
+.reply-body { flex: 1; }
+.reply-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+
+/* 发表回复 */
+.reply-box {
+  background: #fff; border: 1px solid #e8e8e8; padding: 20px;
+}
+.reply-textarea {
+  width: 100%; padding: 10px 12px;
+  font-size: 14px; color: #333;
+  border: 1px solid #e0e0e0; background: #fafafa;
+  outline: none; resize: vertical; font-family: inherit;
+  transition: border-color 0.15s; box-sizing: border-box;
+}
+.reply-textarea:focus { border-color: #2a9fd6; background: #fff; }
+.login-tip { font-size: 13px; color: #aaa; padding: 8px 0; }
+.login-tip a { color: #2a9fd6; }
 .reply-submit-row { margin-top: 10px; text-align: right; }
+
+
+/* ── 附件棋谱（弹窗内） ── */
+.attach-toggle {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border: 1px dashed #d6eaf5;
+  cursor: pointer; background: #f8fbff; transition: all 0.12s;
+  font-size: 13px; color: #2a9fd6;
+  user-select: none;
+}
+.attach-toggle:hover { background: #e8f4fb; border-color: #2a9fd6; }
+.attach-icon  { font-size: 15px; }
+.attach-label { flex: 1; font-weight: 500; }
+.attach-arrow { font-size: 10px; color: #aaa; }
+
+.attach-box {
+  border: 1px solid #d6eaf5; padding: 14px;
+  background: #f8fbff; display: flex; flex-direction: column; gap: 12px;
+}
+.label-hint { font-size: 11px; color: #bbb; font-weight: normal; margin-left: 4px; }
+.moves-textarea {
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: 13px; line-height: 1.8;
+}
+.attach-preview {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.preview-label { font-size: 11px; color: #888; }
+.preview-moves { display: flex; flex-wrap: wrap; gap: 4px; }
+.preview-move {
+  font-size: 12px; padding: 2px 8px; border: 1px solid;
+}
+.preview-move.red   { color: #c0392b; border-color: #f5b8b2; background: #fdf0ef; }
+.preview-move.black { color: #333;    border-color: #ddd;    background: #f5f5f5; }
+.preview-more { font-size: 12px; color: #bbb; align-self: center; }
+
+/* 话题列表附件标记 */
+.attach-badge {
+  flex-shrink: 0; font-size: 11px; padding: 1px 7px;
+  background: #f0faf2; color: #52b26b; border: 1px solid #c3e8cc;
+}
+
+/* 帖子详情中的棋谱卡片 */
+.manual-card {
+  margin-top: 16px;
+  border: 1px solid #d6eaf5; overflow: hidden;
+}
+.manual-card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: #f0f8fd;
+  cursor: pointer; user-select: none;
+  transition: background 0.12s;
+}
+.manual-card-header:hover { background: #e8f4fb; }
+.manual-card-icon  { font-size: 16px; }
+.manual-card-title { flex: 1; font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.manual-card-count { font-size: 12px; color: #2a9fd6; }
+.manual-card-toggle { font-size: 11px; color: #aaa; margin-left: 8px; }
+
+.manual-card-body { padding: 14px; background: #fff; }
+.moves-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.move-item {
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px 8px; font-size: 13px;
+  border: 1px solid #f0f0f0;
+}
+.move-item.red   { background: #fdf0ef; }
+.move-item.black { background: #f5f5f5; }
+.move-num  { font-size: 10px; color: #bbb; min-width: 20px; }
+.move-text { font-weight: 500; color: #222; }
+
+/* ── 发帖弹窗（与其他弹窗完全一致） ── */
+.dialog-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+}
+.dialog {
+  width: 520px; background: #fff;
+  border: 1px solid #d6eaf5;
+  display: flex; flex-direction: column;
+  max-height: 90vh;
+}
+.dialog-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid #f0f0f0;
+  font-size: 15px; font-weight: 600; color: #111;
+}
+.dialog-close {
+  background: none; border: none; color: #bbb; font-size: 14px; cursor: pointer; padding: 0;
+}
+.dialog-close:hover { color: #555; }
+.dialog-body {
+  padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;
+}
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-field label { font-size: 12px; color: #888; font-weight: 500; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%; padding: 8px 10px;
+  font-size: 13px; color: #333;
+  border: 1px solid #e0e0e0; background: #fff; outline: none;
+  transition: border-color 0.15s; font-family: inherit; box-sizing: border-box;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color: #2a9fd6; }
+.form-field textarea { resize: vertical; }
+.dialog-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 20px; border-top: 1px solid #f0f0f0;
+}
+.btn-cancel {
+  padding: 7px 20px; border: 1px solid #e0e0e0;
+  background: #fff; font-size: 13px; color: #555; cursor: pointer;
+}
+.btn-cancel:hover { background: #f5f5f5; }
+.btn-confirm {
+  padding: 7px 20px; border: none;
+  background: #2a9fd6; color: #fff;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background 0.15s; font-family: inherit;
+}
+.btn-confirm:hover:not(:disabled) { background: #1a8ac0; }
+.btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .forum-sidebar { display: none; }
+  .cat-tabs { display: none; }
+  .toolbar-right { margin-left: 0; }
+}
 </style>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <footer class="page-footer">
     <div class="footer-inner">
       <span class="footer-logo">象棋古谱</span>
@@ -28,6 +28,7 @@ export default { name: 'PageFooter' }
   font-size: 13px;
   color: #bbb;
 }
-.footer-logo { font-weight: 600; color: #8B1A1A; }
+.footer-logo { font-weight: 600; color: #111; }
 .sep { color: #e0e0e0; }
 </style>
+

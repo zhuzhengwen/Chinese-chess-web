@@ -136,7 +136,7 @@ export const MEIHUA_MANUALS = [
     categoryName: '梅花谱',
     category: 'cat2',
     difficulty: 4,
-    isPremium: true,
+    isPremium: false,
     description: '黑方改用反宫马布阵，以攻代守。炮镇反宫，马踞要道，攻守兼备。红方需以更精确的次序方能破解。此局展现了反宫马布局的攻击性，是梅花谱中难度最高的局面之一。',
     moves: game3
   }

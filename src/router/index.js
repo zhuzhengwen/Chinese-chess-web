@@ -9,6 +9,7 @@ const routes = [
   { path: '/manuals/:id', component: () => import('../views/ManualDetail.vue') },
   { path: '/my-manuals', component: () => import('../views/MyManuals.vue'), meta: { requiresAuth: true } },
   { path: '/tournaments', component: () => import('../views/Tournament.vue') },
+  { path: '/tournaments/game/:gameId', component: () => import('../views/TournamentGame.vue') },
   { path: '/players', component: () => import('../views/Player.vue') },
   { path: '/resources', component: () => import('../views/Resources.vue') },
   { path: '/forum', component: () => import('../views/Forum.vue') },

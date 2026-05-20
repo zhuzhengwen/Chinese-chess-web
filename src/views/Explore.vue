@@ -77,7 +77,7 @@ export default {
       categories: [],
       loadingCats: false,
       catColors: [
-        'linear-gradient(135deg, #8B1A1A, #c0392b)',
+        'linear-gradient(135deg, #8B1A1A, #2a9fd6)',
         'linear-gradient(135deg, #1a4a8b, #2980b9)',
         'linear-gradient(135deg, #1a5c1a, #27ae60)',
         'linear-gradient(135deg, #5c3d1a, #e67e22)',
@@ -128,32 +128,32 @@ export default {
 
 <style scoped>
 .explore-page { background: #f7f3ee; min-height: calc(100vh - 60px); padding-bottom: 48px; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.container { padding: 0 24px; }
 .page-header { padding: 32px 0 24px; }
 .page-title { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
 .page-desc { font-size: 14px; color: #888; }
 .section { margin-bottom: 40px; }
 .section-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; padding-left: 12px; position: relative; }
-.section-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; background: #8B1A1A; border-radius: 2px; }
+.section-title::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; background: #8B1A1A; border-radius: 0; }
 .loading-area { text-align: center; padding: 40px; color: #999; font-size: 14px; }
 .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.cat-card { border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; color: #fff; }
+.cat-card { border-radius: 0; padding: 24px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 16px; color: #fff; }
 .cat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
 .cat-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
 .cat-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
 .cat-count { font-size: 13px; opacity: 0.85; }
 .masters-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.master-card { background: #fff; border-radius: 10px; padding: 20px; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: all 0.2s; }
+.master-card { background: #fff; border-radius: 0; padding: 20px; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: all 0.2s; }
 .master-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-.master-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #8B1A1A, #c0392b); color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.master-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #8B1A1A, #2a9fd6); color: #fff; font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .master-name { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
 .master-era { font-size: 12px; color: #8B1A1A; margin-bottom: 8px; font-weight: 600; }
 .master-desc { font-size: 13px; color: #666; line-height: 1.7; }
-.dynasty-table { border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.dynasty-table { border-radius: 0; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 .dynasty-table >>> .el-table__header-wrapper th { background: #8B1A1A; color: #fff; font-weight: 600; }
 .dynasty-name { font-weight: 700; color: #8B1A1A; }
 .knowledge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.knowledge-card { background: #fff; border-radius: 12px; padding: 24px 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: all 0.2s; }
+.knowledge-card { background: #fff; border-radius: 0; padding: 24px 20px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: all 0.2s; }
 .knowledge-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
 .knowledge-icon { font-size: 32px; margin-bottom: 12px; }
 .knowledge-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 10px; }
@@ -164,3 +164,4 @@ export default {
   .knowledge-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
+

@@ -1,153 +1,57 @@
-<template>
+﻿<template>
   <div class="resources-page">
-    <div class="container">
-      <div class="page-header">
-        <h1 class="page-title">咨询</h1>
-        <p class="page-desc">中国象棋最新资讯，赛事动态、棋界要闻一站汇聚</p>
+    <div class="toolbar">
+      <div class="search-bar">
+        <input v-model="keyword" type="text" placeholder="搜索资讯标题、来源…" class="search-input" @input="page = 1; activeId = null" />
+        <button v-if="keyword" class="clear-btn" @click="keyword = ''; page = 1">✕</button>
       </div>
-
-      <div class="main-layout">
-        <!-- 左侧新闻主区 -->
-        <div class="news-main">
-          <!-- 分类标签 -->
-          <div class="cat-tabs">
-            <span
-              v-for="cat in categories"
-              :key="cat.val"
-              class="cat-tab"
-              :class="{ active: selectedCat === cat.val }"
-              @click="selectedCat = cat.val"
-            >{{ cat.label }}</span>
-          </div>
-
-          <div v-if="loading" class="loading-tip">加载中…</div>
-          <div v-else>
-            <!-- 置顶大图新闻 -->
-            <div v-if="topNews" class="top-news" @click="openNews(topNews)">
-              <div class="top-news-img">
-                <div class="img-placeholder">
-                  <span class="img-char">{{ topNews.source.charAt(0) }}</span>
-                </div>
-                <span class="top-badge">头条</span>
-              </div>
-              <div class="top-news-body">
-                <div class="news-cat-tag" :class="catColor(topNews.category)">{{ topNews.category }}</div>
-                <h2 class="top-news-title">{{ topNews.title }}</h2>
-                <p class="top-news-summary">{{ topNews.summary }}</p>
-                <div class="news-meta">
-                  <span class="news-source">{{ topNews.source }}</span>
-                  <span class="meta-sep">·</span>
-                  <span class="news-date">{{ topNews.date }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 新闻列表 -->
-            <div class="news-list">
-              <div
-                v-for="item in filteredList"
-                :key="item.id"
-                class="news-row"
-                @click="openNews(item)"
-              >
-                <div class="news-index">{{ item.id }}</div>
-                <div class="news-body">
-                  <div class="news-row-head">
-                    <span class="news-cat-tag small" :class="catColor(item.category)">{{ item.category }}</span>
-                    <h3 class="news-row-title">{{ item.title }}</h3>
-                  </div>
-                  <p class="news-row-summary">{{ item.summary }}</p>
-                  <div class="news-meta">
-                    <span class="news-source">{{ item.source }}</span>
-                    <span class="meta-sep">·</span>
-                    <span class="news-date">{{ item.date }}</span>
-                  </div>
-                </div>
-                <div class="news-thumb">
-                  <div class="thumb-placeholder">
-                    <span>{{ item.title.charAt(0) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="!filteredList.length" class="empty-tip">暂无相关资讯</div>
-
-            <!-- 加载更多 -->
-            <div class="load-more-wrap">
-              <button class="load-more-btn" @click="loadMore" :disabled="loadingMore">
-                {{ loadingMore ? '加载中…' : '加载更多' }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 右侧边栏 -->
-        <aside class="news-aside">
-          <!-- 热点排行 -->
-          <div class="aside-block">
-            <div class="aside-title">热点排行</div>
-            <div
-              v-for="(item, idx) in hotList"
-              :key="item.id"
-              class="hot-row"
-              @click="openNews(item)"
-            >
-              <span class="hot-rank" :class="idx < 3 ? 'top3' : ''">{{ idx + 1 }}</span>
-              <span class="hot-title">{{ item.title }}</span>
-            </div>
-          </div>
-
-          <!-- 近期赛事 -->
-          <div class="aside-block">
-            <div class="aside-title">近期赛事</div>
-            <div v-for="evt in events" :key="evt.id" class="event-row">
-              <div class="event-date">
-                <div class="event-month">{{ evt.month }}</div>
-                <div class="event-day">{{ evt.day }}</div>
-              </div>
-              <div class="event-info">
-                <div class="event-name">{{ evt.name }}</div>
-                <div class="event-loc">{{ evt.location }}</div>
-              </div>
-              <span class="event-status" :class="'status-' + evt.status">
-                {{ statusLabel(evt.status) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- 官方链接 -->
-          <div class="aside-block">
-            <div class="aside-title">官方资源</div>
-            <div class="link-list">
-              <div v-for="link in officialLinks" :key="link.name" class="link-row">
-                <span class="link-dot"></span>
-                <span class="link-name">{{ link.name }}</span>
-                <span class="link-tag">{{ link.tag }}</span>
-              </div>
-            </div>
-          </div>
-        </aside>
+      <div class="cat-tabs">
+        <button
+          v-for="cat in categories" :key="cat.val"
+          :class="['cat-tab', { active: selectedCat === cat.val }]"
+          @click="selectedCat = cat.val; page = 1; activeId = null"
+        >{{ cat.label }}</button>
       </div>
     </div>
 
-    <!-- 新闻详情弹窗 -->
-    <el-dialog
-      :visible.sync="detailVisible"
-      :title="currentNews ? currentNews.title : ''"
-      width="680px"
-      top="60px"
-    >
-      <div v-if="currentNews" class="news-detail">
-        <div class="detail-meta">
-          <span class="news-cat-tag">{{ currentNews.category }}</span>
-          <span class="news-source">{{ currentNews.source }}</span>
-          <span class="meta-sep">·</span>
-          <span class="news-date">{{ currentNews.date }}</span>
+    <div class="list-wrap">
+      <div
+        v-for="item in pagedList"
+        :key="item.id"
+        class="news-item"
+        :class="{ expanded: activeId === item.id }"
+      >
+        <!-- 新闻行 -->
+        <div class="news-row" @click="toggleItem(item.id)">
+          <div class="row-left">
+            <span class="cat-tag" :class="catColor(item.category)">{{ item.category }}</span>
+            <span class="news-title">{{ item.title }}</span>
+          </div>
+          <div class="row-right">
+            <span class="news-source">{{ item.source }}</span>
+            <span class="news-date">{{ item.date }}</span>
+            <span class="expand-icon">{{ activeId === item.id ? '▲' : '▼' }}</span>
+          </div>
         </div>
-        <div class="detail-body" v-html="currentNews.content || currentNews.summary"></div>
+
+        <!-- 展开：正文 -->
+        <div v-if="activeId === item.id" class="news-detail">
+          <p class="news-summary">{{ item.summary }}</p>
+          <div v-if="item.content" class="news-content" v-html="item.content"></div>
+        </div>
       </div>
-    </el-dialog>
+
+      <div v-if="!filteredList.length" class="empty-tip">暂无相关资讯</div>
+    </div>
+
+    <div class="pagination-wrap">
+      <span class="total-count">共 {{ filteredList.length }} 条<template v-if="keyword"> · 搜索"{{ keyword }}"</template></span>
+      <template v-if="filteredList.length > pageSize">
+        <button class="page-btn" :disabled="page === 1" @click="page--">‹ 上一页</button>
+        <span class="page-info">{{ page }} / {{ totalPages }}</span>
+        <button class="page-btn" :disabled="page === totalPages" @click="page++">下一页 ›</button>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -156,9 +60,11 @@ export default {
   name: 'ResourcesPage',
   data() {
     return {
-      loading: false, loadingMore: false,
       selectedCat: 'all',
-      detailVisible: false, currentNews: null,
+      activeId: null,
+      keyword: '',
+      page: 1,
+      pageSize: 15,
       categories: [
         { val: 'all', label: '全部' },
         { val: '赛事', label: '赛事' },
@@ -168,7 +74,7 @@ export default {
       ],
       allNews: [
         {
-          id: 1, category: '赛事', isTop: true,
+          id: 1, category: '赛事',
           title: '第四十届全国象棋个人锦标赛落幕 王天一成功卫冕冠军',
           summary: '经过14天激烈角逐，第四十届全国象棋个人锦标赛在广州圆满落幕。卫冕冠军王天一以11胜2平1负的成绩夺得冠军，谢靖、郑惟桐分列二三位。本届赛事共吸引来自全国32个省市自治区的128名顶级棋手参赛，创历届参赛人数新高。',
           source: '中国象棋协会', date: '2024-07-30',
@@ -228,177 +134,125 @@ export default {
           summary: '第十四届全国运动会象棋项目在陕西西安圆满收官，来自全国各省市的顶级棋手同场竞技，共产生男子、女子、团体三项冠军，为全运会增添了浓厚的文化色彩。',
           source: '全运会官网', date: '2024-09-10'
         }
-      ],
-      hotList: [],
-      events: [
-        { id: 1, name: '全国象棋甲级联赛总决赛', location: '浙江杭州', month: '11月', day: '15', status: 'upcoming' },
-        { id: 2, name: '2024年象棋世界冠军赛', location: '北京', month: '12月', day: '01', status: 'upcoming' },
-        { id: 3, name: '第四十届全国个人锦标赛', location: '广东广州', month: '07月', day: '30', status: 'ended' },
-        { id: 4, name: '亚洲象棋锦标赛', location: '马来西亚', month: '10月', day: '15', status: 'ended' }
-      ],
-      officialLinks: [
-        { name: '中国象棋协会', tag: '官网' },
-        { name: '象棋世界', tag: '门户' },
-        { name: '弈客象棋', tag: '对战' },
-        { name: '全国象棋等级分', tag: '数据' },
-        { name: '象棋巫师', tag: '软件' }
       ]
     }
   },
   computed: {
-    topNews() {
-      const list = this.selectedCat === 'all'
-        ? this.allNews
-        : this.allNews.filter(n => n.category === this.selectedCat)
-      return list.find(n => n.isTop) || list[0] || null
-    },
     filteredList() {
-      const list = this.selectedCat === 'all'
-        ? this.allNews
-        : this.allNews.filter(n => n.category === this.selectedCat)
-      const top = this.topNews
-      return list.filter(n => n !== top)
+      let res = this.selectedCat === 'all' ? this.allNews : this.allNews.filter(n => n.category === this.selectedCat)
+      const kw = this.keyword.trim().toLowerCase()
+      if (kw) res = res.filter(n => n.title.toLowerCase().includes(kw) || (n.source && n.source.includes(kw)))
+      return res
+    },
+    totalPages() { return Math.max(1, Math.ceil(this.filteredList.length / this.pageSize)) },
+    pagedList() {
+      const s = (this.page - 1) * this.pageSize
+      return this.filteredList.slice(s, s + this.pageSize)
     }
   },
-  created() {
-    this.hotList = [...this.allNews].sort(() => Math.random() - 0.5).slice(0, 6)
-  },
   methods: {
-    openNews(item) {
-      this.currentNews = item
-      this.detailVisible = true
-    },
-    loadMore() {
-      this.loadingMore = true
-      setTimeout(() => { this.loadingMore = false }, 800)
-    },
-    statusLabel(s) {
-      return { upcoming: '即将开幕', ongoing: '进行中', ended: '已结束' }[s] || s
-    },
+    toggleItem(id) { this.activeId = this.activeId === id ? null : id },
     catColor(cat) {
-      return { '赛事': 'cat-match', '棋手': 'cat-player', '文化': 'cat-culture', '技术': 'cat-tech' }[cat] || ''
+      return { '赛事': 'c-match', '棋手': 'c-player', '文化': 'c-culture', '技术': 'c-tech' }[cat] || ''
     }
   }
 }
 </script>
 
 <style scoped>
-.resources-page { background: #f5f6f8; min-height: calc(100vh - 56px); padding-bottom: 60px; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+.resources-page { display: flex; flex-direction: column; gap: 0; padding-bottom: 40px; }
 
-.page-header { padding: 28px 0 20px; margin-bottom: 24px; }
-.page-title { font-size: 22px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; letter-spacing: 2px; }
-.page-desc { font-size: 13px; color: #aaa; }
+.toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.search-bar { position: relative; flex: 1; min-width: 160px; max-width: 280px; }
+.search-input { width: 100%; height: 38px; padding: 0 32px 0 12px; font-size: 14px; color: #333; border: 1px solid #d6eaf5; background: #fff; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: #2a9fd6; }
+.search-input::placeholder { color: #ccc; }
+.clear-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #bbb; cursor: pointer; font-size: 13px; padding: 0; }
+.clear-btn:hover { color: #888; }
 
-.main-layout { display: flex; gap: 24px; align-items: flex-start; }
-.news-main { flex: 1; min-width: 0; }
-.news-aside { width: 256px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px; }
+.cat-tabs { display: flex; overflow: hidden; border: 1px solid #d6eaf5; }
+.cat-tab { padding: 0 14px; height: 38px; font-size: 12px; color: #999; cursor: pointer; border: none; background: #fff; transition: all 0.12s; }
+.cat-tab + .cat-tab { border-left: 1px solid #d6eaf5; }
+.cat-tab:hover:not(.active) { background: #e8f4fb; color: #2a9fd6; }
+.cat-tab.active { background: #2a9fd6; color: #fff; font-weight: 600; }
 
-/* 分类 Tab */
-.cat-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-.cat-tab { padding: 5px 16px; font-size: 13px; color: #555; cursor: pointer; border-radius: 20px; background: #fff; border: 1px solid #e8e8e8; transition: all 0.15s; }
-.cat-tab:hover { border-color: #8B1A1A; color: #8B1A1A; }
-.cat-tab.active { background: #8B1A1A; color: #fff; border-color: #8B1A1A; font-weight: 600; }
-
-.loading-tip { color: #bbb; font-size: 14px; padding: 40px 0; }
-
-/* 头条 */
-.top-news { display: flex; gap: 20px; padding: 20px; background: #fff; border-radius: 6px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.15s; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-.top-news:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
-.top-news-img { position: relative; flex-shrink: 0; }
-.img-placeholder { width: 200px; height: 130px; border-radius: 6px; background: linear-gradient(135deg, #1d2e4a 0%, #3a5a8a 100%); display: flex; align-items: center; justify-content: center; }
-.img-char { font-size: 48px; font-weight: 800; color: rgba(255,255,255,.25); }
-.top-badge { position: absolute; top: 8px; left: 8px; background: #e63a2e; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 2px; letter-spacing: 1px; }
-.top-news-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-.top-news-title { font-size: 18px; font-weight: 700; color: #1a1a1a; line-height: 1.5; margin: 8px 0 10px; }
-.top-news-summary { font-size: 13px; color: #777; line-height: 1.8; flex: 1; }
-
-/* 分类标签 色彩 */
-.news-cat-tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 2px; margin-right: 6px; font-weight: 500; }
-.news-cat-tag.small { font-size: 10px; }
-.cat-match  { background: #e6f4ff; color: #1677ff; }
-.cat-player { background: #f6ffed; color: #389e0d; }
-.cat-culture{ background: #fff7e6; color: #d46b08; }
-.cat-tech   { background: #f9f0ff; color: #722ed1; }
-/* 默认 */
-.news-cat-tag:not([class*="cat-"]) { background: #f5f5f5; color: #888; }
-
-.news-meta { display: flex; align-items: center; gap: 4px; font-size: 12px; margin-top: 8px; }
-.news-source { color: #555; font-weight: 500; }
-.meta-sep { color: #ddd; }
-.news-date { color: #bbb; }
-
-/* 新闻列表 */
-.news-list { border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-.news-row { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #fff; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.1s; }
-.news-row:last-child { border-bottom: none; }
-.news-row:hover { background: #fafafa; }
-
-.news-index { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #f0f0f0; color: #bbb; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
-.news-body { flex: 1; min-width: 0; }
-.news-row-head { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
-.news-row-title { font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.4; }
-.news-row-summary { font-size: 12px; color: #999; line-height: 1.7; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 6px; }
-
-.news-thumb { flex-shrink: 0; }
-.thumb-placeholder { width: 80px; height: 60px; border-radius: 4px; background: linear-gradient(135deg, #2d3f5c 0%, #4a6a9a 100%); display: flex; align-items: center; justify-content: center; }
-.thumb-placeholder span { font-size: 22px; font-weight: 700; color: rgba(255,255,255,.3); }
-
-.load-more-wrap { text-align: center; padding: 20px 0 4px; }
-.load-more-btn { padding: 8px 36px; border: 1px solid #ddd; background: #fff; color: #666; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; }
-.load-more-btn:hover:not(:disabled) { border-color: #8B1A1A; color: #8B1A1A; }
-.load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.empty-tip { color: #ccc; font-size: 14px; padding: 40px 0; text-align: center; }
-
-/* 侧边栏 */
-.aside-block { background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-.aside-title { font-size: 13px; font-weight: 700; color: #1a1a1a; padding: 12px 16px 10px; border-bottom: 2px solid #8B1A1A; display: flex; align-items: center; gap: 6px; }
-
-/* 热点排行 */
-.hot-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.1s; }
-.hot-row:last-child { border-bottom: none; }
-.hot-row:hover { background: #fafafa; }
-.hot-rank { flex-shrink: 0; width: 18px; height: 18px; border-radius: 3px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
-.hot-rank:not(.top3) { background: #f5f5f5; color: #bbb; }
-.hot-rank.top3:nth-child(1) { background: #faad14; color: #fff; }
-.hot-row:nth-child(1) .hot-rank { background: #e63a2e; color: #fff; }
-.hot-row:nth-child(2) .hot-rank { background: #fa8c16; color: #fff; }
-.hot-row:nth-child(3) .hot-rank { background: #faad14; color: #fff; }
-.hot-title { font-size: 12px; color: #444; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-
-/* 赛事 */
-.event-row { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #f5f5f5; }
-.event-row:last-child { border-bottom: none; }
-.event-date { flex-shrink: 0; width: 42px; text-align: center; border-radius: 4px; overflow: hidden; border: 1px solid #e8e8e8; }
-.event-month { background: #8B1A1A; color: #fff; font-size: 9px; padding: 2px 0; }
-.event-day { font-size: 16px; font-weight: 700; color: #1a1a1a; padding: 2px 0; }
-.event-info { flex: 1; min-width: 0; }
-.event-name { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.event-loc { font-size: 11px; color: #bbb; }
-.event-status { flex-shrink: 0; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
-.status-upcoming { background: #e6f4ff; color: #1677ff; }
-.status-ongoing  { background: #f6ffed; color: #389e0d; }
-.status-ended    { background: #f5f5f5; color: #bbb; }
-
-/* 官方链接 */
-.link-list { padding: 4px 0; }
-.link-row { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-bottom: 1px solid #f5f5f5; cursor: pointer; transition: background 0.1s; }
-.link-row:last-child { border-bottom: none; }
-.link-row:hover { background: #fafafa; }
-.link-dot { width: 5px; height: 5px; border-radius: 50%; background: #8B1A1A; flex-shrink: 0; }
-.link-name { flex: 1; font-size: 13px; color: #333; }
-.link-tag { font-size: 10px; color: #8B1A1A; border: 1px solid #f0c8c8; padding: 1px 5px; border-radius: 10px; background: #fff5f5; }
-
-/* 弹窗 */
-.detail-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-.detail-body { font-size: 14px; color: #555; line-height: 1.9; }
-.detail-body >>> p { margin-bottom: 12px; }
-
-@media (max-width: 900px) {
-  .main-layout { flex-direction: column; }
-  .news-aside { width: 100%; }
-  .top-news { flex-direction: column; }
-  .img-placeholder { width: 100%; height: 160px; }
+.list-wrap {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 0;
+  overflow: hidden;
 }
+
+.news-item { border-bottom: 1px solid #f4f4f4; }
+.news-item:last-child { border-bottom: none; }
+
+.news-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 16px;
+}
+.news-row:hover { background: #fafafa; }
+.news-item.expanded > .news-row { background: #f7f9ff; }
+
+.row-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+
+.cat-tag {
+  flex-shrink: 0;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 0;
+  font-weight: 500;
+}
+.c-match   { background: #e6f4ff; color: #2a9fd6; }
+.c-player  { background: #f6ffed; color: #389e0d; }
+.c-culture { background: #fff7e6; color: #d46b08; }
+.c-tech    { background: #f9f0ff; color: #722ed1; }
+
+.news-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s;
+}
+.news-item.expanded .news-title { color: #2a9fd6; }
+
+.row-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.news-source { font-size: 12px; color: #999; }
+.news-date { font-size: 12px; color: #bbb; min-width: 72px; text-align: right; }
+.expand-icon { font-size: 10px; color: #ccc; width: 14px; text-align: center; }
+
+/* 展开正文 */
+.news-detail {
+  padding: 16px 20px 20px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafbff;
+}
+.news-summary {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.9;
+  margin: 0 0 10px;
+}
+.news-content { font-size: 14px; color: #555; line-height: 1.9; }
+.news-content >>> p { margin-bottom: 10px; }
+
+.empty-tip { color: #ccc; font-size: 14px; padding: 60px; text-align: center; }
+
+.pagination-wrap { display: flex; align-items: center; gap: 16px; padding: 16px 0 4px; }
+.total-count { font-size: 13px; color: #bbb; margin-right: auto; }
+.page-btn {
+  padding: 6px 16px; border: 1px solid #e0e0e0; border-radius: 0;
+  background: #fff; font-size: 13px; color: #555; cursor: pointer; transition: all 0.15s;
+}
+.page-btn:hover:not(:disabled) { border-color: #2a9fd6; color: #2a9fd6; }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-info { font-size: 13px; color: #999; }
 </style>
+
