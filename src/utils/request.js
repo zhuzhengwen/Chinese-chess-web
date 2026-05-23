@@ -1,5 +1,5 @@
 import axios from 'axios'
-import router from '../router'
+import store from '../store'
 
 const request = axios.create({
   baseURL: '/api',
@@ -22,7 +22,7 @@ request.interceptors.response.use(
   error => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
-      router.push('/login')
+      store.commit('user/OPEN_AUTH_MODAL', 'login')
     }
     return Promise.reject(error)
   }

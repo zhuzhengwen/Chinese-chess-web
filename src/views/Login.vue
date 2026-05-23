@@ -178,10 +178,7 @@ export default {
         this.$message.success('登录成功')
         this.redirectAfterLogin()
       } catch (e) {
-        this.$store.commit('user/SET_TOKEN', 'mock-token-dev')
-        this.$store.commit('user/SET_USER', { id: 1, username: this.loginForm.username, nickname: this.loginForm.username, vip: false })
-        this.$message.success('登录成功')
-        this.redirectAfterLogin()
+        this.error = e.message || '用户名或密码错误'
       } finally { this.logging = false }
     },
     async handleRegister() {
@@ -209,12 +206,11 @@ export default {
     async handleMockLogin() {
       try {
         await this.$store.dispatch('user/login', { mockLogin: true })
+        this.$message.success('登录成功')
+        this.redirectAfterLogin()
       } catch (e) {
-        this.$store.commit('user/SET_TOKEN', 'mock-token-12345')
-        this.$store.commit('user/SET_USER', { id: 1, username: 'admin', nickname: '棋道高手', vip: true })
+        this.error = e.message || '登录失败'
       }
-      this.$message.success('登录成功')
-      this.redirectAfterLogin()
     },
     redirectAfterLogin() {
       this.$router.push(this.$route.query.redirect || '/manuals')

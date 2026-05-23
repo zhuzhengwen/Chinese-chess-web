@@ -2,7 +2,8 @@ import request from '../utils/request'
 
 export const auth = {
   login(data) { return request.post('/auth/login', data) },
-  register(data) { return request.post('/auth/register', data) }
+  register(data) { return request.post('/auth/register', data) },
+  resetPassword(data) { return request.post('/auth/reset-password', data) }
 }
 
 export const manuals = {
@@ -26,7 +27,8 @@ export const myManuals = {
 export const tournaments = {
   getList(params) { return request.get('/tournaments', { params }) },
   getDetail(id) { return request.get(`/tournaments/${id}`) },
-  getGames(id) { return request.get(`/tournaments/${id}/games`) }
+  getGames(id) { return request.get(`/tournaments/${id}/games`) },
+  getGame(gameId) { return request.get(`/tournaments/game/${gameId}`) }
 }
 
 export const players = {
@@ -59,4 +61,39 @@ export const user = {
 
 export const news = {
   getList(params) { return request.get('/news', { params }) }
+}
+
+export const admin = {
+  manuals: {
+    getList(params)    { return request.get('/admin/manuals', { params }) },
+    create(data)       { return request.post('/admin/manuals', data) },
+    update(id, data)   { return request.put(`/admin/manuals/${id}`, data) },
+    remove(id)         { return request.delete(`/admin/manuals/${id}`) },
+    uploadPgn(id, file) {
+      const fd = new FormData(); fd.append('file', file)
+      return request.post(`/admin/manuals/${id}/upload-pgn`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    }
+  },
+  tournaments: {
+    getList(params)    { return request.get('/admin/tournaments', { params }) },
+    create(data)       { return request.post('/admin/tournaments', data) },
+    update(id, data)   { return request.put(`/admin/tournaments/${id}`, data) },
+    remove(id)         { return request.delete(`/admin/tournaments/${id}`) },
+    uploadPgn(id, file) {
+      const fd = new FormData(); fd.append('file', file)
+      return request.post(`/admin/tournaments/${id}/upload-pgn`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    }
+  },
+  players: {
+    getList(params)    { return request.get('/admin/players', { params }) },
+    create(data)       { return request.post('/admin/players', data) },
+    update(id, data)   { return request.put(`/admin/players/${id}`, data) },
+    remove(id)         { return request.delete(`/admin/players/${id}`) }
+  },
+  news: {
+    getList(params)    { return request.get('/admin/news', { params }) },
+    create(data)       { return request.post('/admin/news', data) },
+    update(id, data)   { return request.put(`/admin/news/${id}`, data) },
+    remove(id)         { return request.delete(`/admin/news/${id}`) }
+  }
 }

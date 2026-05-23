@@ -9,27 +9,32 @@
 
         <div class="nav-user">
           <template v-if="isLoggedIn && userInfo">
+            <router-link v-if="isAdmin" to="/admin" class="admin-entry">管理后台</router-link>
             <div class="user-trigger" @click="dropdownOpen = !dropdownOpen" v-click-outside="() => dropdownOpen = false">
-              <div class="avatar">{{ avatarChar }}</div>
+              <div class="avatar" :class="{ 'avatar-admin': isAdmin }">{{ avatarChar }}</div>
               <span class="nickname">{{ userInfo.nickname || userInfo.phone }}</span>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="dropdown" v-show="dropdownOpen">
               <div class="dropdown-user">
-                <div class="dropdown-avatar">{{ avatarChar }}</div>
+                <div class="dropdown-avatar" :class="{ 'avatar-admin': isAdmin }">{{ avatarChar }}</div>
                 <div>
-                  <div class="dropdown-name">{{ userInfo.nickname || userInfo.phone }}</div>
+                  <div class="dropdown-name">
+                    {{ userInfo.nickname || userInfo.phone }}
+                    <span v-if="isAdmin" class="admin-badge">超管</span>
+                  </div>
                   <div class="dropdown-email">{{ userInfo.email || userInfo.phone || '' }}</div>
                 </div>
               </div>
               <div class="dropdown-divider"></div>
+              <div v-if="isAdmin" class="dropdown-item admin-item" @click="$router.push('/admin'); dropdownOpen = false">管理后台</div>
               <div class="dropdown-item" @click="handleCommand('profile')">个人中心</div>
               <div class="dropdown-divider"></div>
               <div class="dropdown-item logout" @click="handleCommand('logout')">退出登录</div>
             </div>
           </template>
           <template v-else>
-            <router-link to="/login" class="login-btn">登录</router-link>
+            <button class="login-btn" @click="openLogin">登录</button>
           </template>
         </div>
 
@@ -67,7 +72,7 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'NavBar',
@@ -95,7 +100,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['isLoggedIn']),
+    ...mapGetters('user', ['isLoggedIn', 'isAdmin']),
     ...mapState('user', ['userInfo']),
     visibleNavItems() {
       return this.navItems.filter(item => !item.auth || this.isLoggedIn)
@@ -111,6 +116,9 @@ export default {
   methods: {
     isActive(item) {
       return item.match.some(p => this.$route.path.startsWith(p))
+    },
+    openLogin() {
+      this.$store.commit('user/OPEN_AUTH_MODAL', 'login')
     },
     handleCommand(cmd) {
       if (cmd === 'profile') this.$router.push('/user')
@@ -166,9 +174,12 @@ export default {
   color: #fff;
   background: #2a9fd6;
   padding: 5px 16px;
-  text-decoration: none;
+  border: none;
+  cursor: pointer;
   font-weight: 500;
   transition: background 0.15s;
+  text-decoration: none;
+  display: inline-block;
 }
 .login-btn:hover { background: #1a8ac0; }
 
@@ -320,6 +331,32 @@ export default {
   background: #e8f4fb;
   color: #2a9fd6;
 }
+
+/* 管理后台入口 */
+.admin-entry {
+  font-size: 12px;
+  color: #e07b2a;
+  border: 1px solid #f5ceac;
+  background: #fdf2e8;
+  padding: 3px 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.12s;
+  white-space: nowrap;
+}
+.admin-entry:hover { background: #f5ceac; }
+.avatar-admin { background: #e07b2a !important; }
+.admin-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 0px 5px;
+  background: #e07b2a;
+  color: #fff;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.admin-item { color: #e07b2a !important; font-weight: 600; }
+.admin-item:hover { background: #fdf2e8 !important; }
 
 @media (max-width: 768px) {
   .navbar-tabs { display: none; }

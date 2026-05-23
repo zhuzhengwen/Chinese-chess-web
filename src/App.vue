@@ -7,16 +7,18 @@
       </main>
     </div>
     <page-footer />
+    <auth-modal />
   </div>
 </template>
 
 <script>
 import NavBar from './components/NavBar.vue'
 import PageFooter from './components/PageFooter.vue'
+import AuthModal from './components/AuthModal.vue'
 
 export default {
   name: 'App',
-  components: { NavBar, PageFooter }
+  components: { NavBar, PageFooter, AuthModal }
 }
 </script>
 

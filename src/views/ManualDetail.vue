@@ -19,7 +19,7 @@
           <span class="meta-sep">·</span>
           <span class="meta-author">{{ book.author }}</span>
           <span class="meta-diff" :class="'diff-' + book.difficulty">{{ diffLabel(book.difficulty) }}</span>
-          <span v-for="label in book.labels" :key="label" class="label-tag">{{ label }}</span>
+          <span v-if="book.premium" class="label-tag">付费</span>
         </div>
         <h1 class="book-title">{{ book.title }}</h1>
         <p class="book-desc">{{ book.desc }}</p>
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { MANUAL_BOOKS } from '../data/manualBooks.js'
+import { manuals as manualsApi } from '../api/index'
 import ChessBoardPlayer from '../components/ChessBoardPlayer.vue'
 
 export default {
@@ -75,9 +75,23 @@ export default {
       activeGameId: null
     }
   },
-  mounted() {
+  async mounted() {
     const id = Number(this.$route.params.id)
-    this.book = MANUAL_BOOKS.find(b => b.id === id) || null
+    try {
+      const res = await manualsApi.getDetail(id)
+      const raw = res.data || res
+      if (raw && raw.id) {
+        raw.desc = raw.description || ''
+        try {
+          raw.games = JSON.parse(raw.content || '[]')
+        } catch (e) {
+          raw.games = []
+        }
+        this.book = raw
+      }
+    } catch (e) {
+      this.book = null
+    }
   },
   methods: {
     diffLabel(d) {

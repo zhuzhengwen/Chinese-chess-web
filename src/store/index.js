@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { auth, manuals, user } from '../api/index'
+import { auth, manuals, user as userApi } from '../api/index'
 
 Vue.use(Vuex)
 
@@ -8,9 +8,18 @@ const userModule = {
   namespaced: true,
   state: {
     token: localStorage.getItem('token') || '',
-    userInfo: null
+    userInfo: null,
+    authModalVisible: false,
+    authModalMode: 'login'
   },
   mutations: {
+    OPEN_AUTH_MODAL(state, mode = 'login') {
+      state.authModalMode = mode
+      state.authModalVisible = true
+    },
+    CLOSE_AUTH_MODAL(state) {
+      state.authModalVisible = false
+    },
     SET_TOKEN(state, token) {
       state.token = token
       if (token) {
@@ -32,8 +41,23 @@ const userModule = {
     async login({ commit }, credentials) {
       const res = await auth.login(credentials)
       if (res && res.data) {
+        // res.data = LoginResponse: { token, user }
         commit('SET_TOKEN', res.data.token)
-        commit('SET_USER', res.data.user || res.data.userInfo)
+        commit('SET_USER', res.data.user || res.data.userInfo || res.data)
+      }
+      return res
+    },
+    async register(context, params) {
+      const res = await auth.register(params)
+      if (!res || res.code !== 200) {
+        throw new Error((res && res.message) || '注册失败')
+      }
+      return res
+    },
+    async resetPassword(context, params) {
+      const res = await auth.resetPassword(params)
+      if (!res || res.code !== 200) {
+        throw new Error((res && res.message) || '重置失败')
       }
       return res
     },
@@ -42,7 +66,7 @@ const userModule = {
     },
     async fetchProfile({ commit }) {
       try {
-        const res = await user.getProfile()
+        const res = await userApi.getProfile()
         if (res && res.data) {
           commit('SET_USER', res.data)
         }
@@ -53,7 +77,8 @@ const userModule = {
   },
   getters: {
     isLoggedIn: state => !!state.token,
-    isVip: state => state.userInfo && state.userInfo.vip
+    isVip: state => state.userInfo && state.userInfo.vip,
+    isAdmin: state => !!(state.userInfo && (state.userInfo.role === 'admin' || state.userInfo.isAdmin))
   }
 }
 

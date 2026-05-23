@@ -14,17 +14,13 @@
       >
         <div class="row-left">
           <span class="book-title">{{ book.title }}</span>
-          <span
-            v-for="label in book.labels"
-            :key="label"
-            class="label-tag"
-          >{{ label }}</span>
+          <span v-if="book.premium" class="label-tag">付费</span>
         </div>
         <div class="row-right">
           <span class="meta-dynasty">{{ book.dynasty }}</span>
           <span class="meta-author">{{ book.author }}</span>
           <span class="meta-diff" :class="'diff-' + book.difficulty">{{ diffLabel(book.difficulty) }}</span>
-          <span class="game-count">{{ book.games.length }} 局</span>
+          <span class="game-count">{{ book.totalMoves || 0 }} 步</span>
         </div>
       </div>
     </div>
@@ -41,19 +37,30 @@
 </template>
 
 <script>
-import { MANUAL_BOOKS } from '../data/manualBooks.js'
+import { manuals as manualsApi } from '../api/index'
 
 export default {
   name: 'ManualList',
   data() {
     return {
-      MANUAL_BOOKS,
+      list: [],
       page: 1,
       pageSize: 15,
       keyword: ''
     }
   },
+  mounted() {
+    this.fetchList()
+  },
   methods: {
+    async fetchList() {
+      try {
+        const res = await manualsApi.getList()
+        this.list = res.data || res || []
+      } catch (e) {
+        this.list = []
+      }
+    },
     diffLabel(d) {
       return ['', '入门', '初级', '中级', '高级', '大师'][d] || '—'
     }
@@ -61,8 +68,8 @@ export default {
   computed: {
     filteredList() {
       const kw = this.keyword.trim().toLowerCase()
-      if (!kw) return this.MANUAL_BOOKS
-      return this.MANUAL_BOOKS.filter(b =>
+      if (!kw) return this.list
+      return this.list.filter(b =>
         b.title.toLowerCase().includes(kw) ||
         (b.author && b.author.toLowerCase().includes(kw)) ||
         (b.dynasty && b.dynasty.includes(kw))

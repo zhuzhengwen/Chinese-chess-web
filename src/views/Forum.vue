@@ -265,86 +265,13 @@ import { mapGetters, mapState } from 'vuex'
 
 const AVATAR_COLORS = ['#2a9fd6','#2980b9','#27ae60','#8e44ad','#d35400','#16a085','#2c3e50','#8B1A1A']
 function avatarBg(name) {
+  if (!name) return AVATAR_COLORS[0]
   let h = 0
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]
 }
 
 let nextId = 100
-
-const mockTopics = [
-  {
-    id: 1, pinned: true, category: 'opening',
-    title: '当头炮对屏风马，红方第五手最优解讨论',
-    author: '棋道求索', views: 1842, likes: 36, liked: false,
-    createdAt: '2026-05-15 10:22', updatedAt: '2026-05-17 18:04',
-    lastReplyAuthor: '残局高手',
-    content: '当头炮对屏风马是最经典的开局之一。近期研究发现红方第五手走马八进七和马二进三各有优劣，大家怎么看？欢迎分享实战经验和研究心得。',
-    replies: [
-      { id: 11, author: '残局高手', createdAt: '2026-05-16 09:14', likes: 12, liked: false, content: '个人偏好马八进七，中路压力更大，对方屏风马形难以展开。但遇到软化变例需要提前准备。' },
-      { id: 12, author: '攻杀流',   createdAt: '2026-05-17 14:33', likes: 8,  liked: false, content: '马二进三更稳健，保持阵型完整性。职业比赛中两者都有用，看个人风格。' },
-      { id: 13, author: '初学象棋', createdAt: '2026-05-17 18:04', likes: 3,  liked: false, content: '作为初学者，感觉马八进七更容易理解，变化相对少一些，实战效果不错。' }
-    ]
-  },
-  {
-    id: 2, pinned: false, category: 'endgame',
-    title: '车马胜单车的基本定式整理',
-    author: '残局高手', views: 976, likes: 28, liked: false,
-    createdAt: '2026-05-14 20:10', updatedAt: '2026-05-16 11:30',
-    lastReplyAuthor: '棋道求索',
-    content: '整理了常见的车马胜单车定式，包括"马低兵胜车"和"车马联攻"两种基本形态，附图解说明，希望对大家残局学习有帮助。',
-    replies: [
-      { id: 21, author: '棋道求索', createdAt: '2026-05-15 08:45', likes: 15, liked: false, content: '整理得很全面！补充一点：车马胜单车还需注意"闷车"战术，当对方车陷入角落时胜率大增。' },
-      { id: 22, author: '研究党',   createdAt: '2026-05-16 11:30', likes: 7,  liked: false, content: '感谢分享，这类定式是残局基础，建议新手反复练习。' }
-    ]
-  },
-  {
-    id: 3, pinned: false, category: 'tournament',
-    title: '2025全国象棋锦标赛——王天一vs谢靖精彩对局分析',
-    author: '赛事观察员', views: 2310, likes: 54, liked: false,
-    createdAt: '2026-05-10 15:00', updatedAt: '2026-05-14 22:17',
-    lastReplyAuthor: '攻杀流',
-    content: '昨天全国赛半决赛，王天一执红对阵谢靖，开局走飞相局对挺卒，中盘出现精彩的马炮换双车牺牲，最终以一步"车踩中兵"奠定胜局。大家一起来复盘！',
-    replies: [
-      { id: 31, author: '棋谱收藏家', createdAt: '2026-05-11 09:22', likes: 20, liked: false, content: '那步马炮换双车真是神来之笔，牺牲物质换取绝对攻势，体现了王天一对局面的深刻理解。' },
-      { id: 32, author: '攻杀流',     createdAt: '2026-05-14 22:17', likes: 11, liked: false, content: '最后车踩中兵之后红方胜势已成，但谢靖的防御也相当顽强，拖到最后关头才认负。' }
-    ]
-  },
-  {
-    id: 4, pinned: false, category: 'player',
-    title: '胡荣华九连冠时代的开局体系解析',
-    author: '历史研究者', views: 1540, likes: 41, liked: false,
-    createdAt: '2026-05-08 11:30', updatedAt: '2026-05-12 16:55',
-    lastReplyAuthor: '历史研究者',
-    content: '胡荣华先生创造了全国象棋个人赛九连冠的传奇纪录，其开局研究深度远超时代。本帖梳理其标志性的"仙人指路"和"飞相局"体系，欢迎共同研究。',
-    replies: [
-      { id: 41, author: '古谱爱好者', createdAt: '2026-05-09 14:00', likes: 18, liked: false, content: '胡老的棋风以灵活多变著称，同一局面往往有多套应对方案，这种"预备系统"的思想在当时非常超前。' },
-      { id: 42, author: '历史研究者', createdAt: '2026-05-12 16:55', likes: 9,  liked: false, content: '补充：胡老晚年接受采访时提到，开局最重要的是"掌握主动"，宁可牺牲一子也要争夺先手。' }
-    ]
-  },
-  {
-    id: 5, pinned: false, category: 'general',
-    title: '推荐几本适合入门的象棋书籍',
-    author: '书单达人', views: 890, likes: 22, liked: false,
-    createdAt: '2026-05-06 09:00', updatedAt: '2026-05-10 19:48',
-    lastReplyAuthor: '初学象棋',
-    content: '整理了几本适合入门和进阶的象棋书籍推荐：\n1.《象棋入门》——基础规则与简单战术\n2.《七十二局》——经典古谱精讲\n3.《象棋残局大全》——系统学习残局\n4.《当头炮全攻略》——专项开局训练',
-    replies: [
-      { id: 51, author: '初学象棋', createdAt: '2026-05-10 19:48', likes: 14, liked: false, content: '感谢推荐！《七十二局》已经在看了，确实是经典，每一局都有深度。' }
-    ]
-  },
-  {
-    id: 6, pinned: false, category: 'opening',
-    title: '顺炮直车对横车——黑方如何应对红方早出直车',
-    author: '攻杀流', views: 760, likes: 17, liked: false,
-    createdAt: '2026-05-04 16:40', updatedAt: '2026-05-08 10:20',
-    lastReplyAuthor: '棋道求索',
-    content: '顺炮局面中红方早出直车是常见的积极战法，黑方应对如不慎重容易陷入被动。本帖讨论黑方几种常见应对思路，欢迎交流。',
-    replies: [
-      { id: 61, author: '棋道求索', createdAt: '2026-05-08 10:20', likes: 8, liked: false, content: '黑方横车反击是常见思路，但时机很重要。过早出横车可能被红方"塞象眼"战术限制。' }
-    ]
-  }
-]
 
 export default {
   name: 'Forum',
@@ -375,7 +302,7 @@ export default {
   data() {
     return {
       loading: false,
-      topics: JSON.parse(JSON.stringify(mockTopics)),
+      topics: [],
       currentTopic: null,
       selectedCat: 'all',
       selectedSort: 'latest',

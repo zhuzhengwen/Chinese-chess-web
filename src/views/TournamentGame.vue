@@ -62,56 +62,7 @@
 
 <script>
 import ChessBoardPlayer from '../components/ChessBoardPlayer.vue'
-
-// 全部 mock 赛事对局数据
-const MOCK_TOURNAMENTS = [
-  {
-    id: 1, name: '第四十届全国象棋个人赛', year: '2024',
-    dateRange: '2024-07-15 ~ 07-28', location: '广东广州', champion: '王天一',
-    games: [
-      { id: 1, round: '第1轮', redPlayer: '王天一', blackPlayer: '谢靖', result: 'red', opening: '顺炮直车', date: '2024-07-15' },
-      { id: 2, round: '第2轮', redPlayer: '郑惟桐', blackPlayer: '王天一', result: 'black', opening: '当头炮', date: '2024-07-16' },
-      { id: 3, round: '决赛',  redPlayer: '王天一', blackPlayer: '谢靖', result: 'draw', opening: '飞象局', date: '2024-07-28' }
-    ]
-  },
-  {
-    id: 2, name: '象棋甲级联赛 2024 赛季', year: '2024',
-    dateRange: '2024-03-01 ~ 11-30', location: '全国各地', champion: '广东恒大队',
-    games: [
-      { id: 4, round: '第1轮', redPlayer: '许银川', blackPlayer: '王天一', result: 'draw', opening: '屏风马', date: '2024-03-01' },
-      { id: 5, round: '第8轮', redPlayer: '谢靖',   blackPlayer: '郑惟桐', result: 'red',  opening: '反宫马', date: '2024-05-10' }
-    ]
-  },
-  {
-    id: 3, name: '全国象棋团体赛 2023', year: '2023',
-    dateRange: '2023-09-10 ~ 09-20', location: '浙江杭州', champion: '广东队',
-    games: [
-      { id: 6, round: '半决赛', redPlayer: '王天一', blackPlayer: '许银川', result: 'red',  opening: '中炮对屏风马', date: '2023-09-15' },
-      { id: 7, round: '决赛',   redPlayer: '谢靖',   blackPlayer: '王天一', result: 'draw', opening: '当头炮进三兵', date: '2023-09-20' }
-    ]
-  },
-  {
-    id: 4, name: '第三十九届全国象棋个人赛', year: '2023',
-    dateRange: '2023-07-12 ~ 07-25', location: '江苏扬州', champion: '谢靖',
-    games: [
-      { id: 8, round: '第1轮', redPlayer: '谢靖',   blackPlayer: '汪洋',   result: 'red', opening: '顺炮', date: '2023-07-12' },
-      { id: 9, round: '决赛',  redPlayer: '谢靖',   blackPlayer: '郑惟桐', result: 'red', opening: '仙人指路', date: '2023-07-25' }
-    ]
-  }
-]
-
-function getMockMoves() {
-  return [
-    {notation:'炮二平五'},{notation:'炮８平５'},
-    {notation:'马二进三'},{notation:'马８进７'},
-    {notation:'车一平二'},{notation:'车９平８'},
-    {notation:'兵七进一'},{notation:'卒７进１'},
-    {notation:'马八进七'},{notation:'马２进３'},
-    {notation:'车二进六'},{notation:'车８进２'},
-    {notation:'马七进六'},{notation:'马３进４'},
-    {notation:'炮五平六'},{notation:'炮５平６'}
-  ]
-}
+import { tournaments } from '../api/index'
 
 export default {
   name: 'TournamentGame',
@@ -124,15 +75,17 @@ export default {
   },
   mounted() { this.loadGame() },
   methods: {
-    loadGame() {
+    async loadGame() {
       const gameId = Number(this.$route.params.gameId)
-      for (const t of MOCK_TOURNAMENTS) {
-        const game = t.games.find(g => g.id === gameId)
-        if (game) {
-          this.gameInfo = { ...game, tournamentName: t.name, tournamentId: t.id }
-          this.moves = getMockMoves()
-          return
+      try {
+        const res = await tournaments.getGame(gameId)
+        const data = res.data || res
+        if (data && data.gameInfo) {
+          this.gameInfo = data.gameInfo
+          this.moves = data.moves || []
         }
+      } catch (e) {
+        this.gameInfo = null
       }
     },
     resultLabel(r) {

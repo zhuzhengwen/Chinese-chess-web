@@ -89,14 +89,7 @@ export default {
         const list = res.data || res || []
         this.recommendedList = list.slice(0, 6)
       } catch (e) {
-        this.recommendedList = [
-          { id: 1, title: '橘中秘·炮局', dynasty: '明', author: '朱晋桢', difficulty: 3 },
-          { id: 2, title: '梅花谱·屏风马', dynasty: '清', author: '张乔栋', difficulty: 4 },
-          { id: 3, title: '适情雅趣·残局', dynasty: '清', author: '佚名', difficulty: 2 },
-          { id: 4, title: '韬略元机·开局', dynasty: '明', author: '颜丙', difficulty: 3 },
-          { id: 5, title: '竹香斋·全局', dynasty: '清', author: '张志', difficulty: 5, isPremium: false },
-          { id: 6, title: '渊深海阔·残局', dynasty: '清', author: '佚名', difficulty: 4, isPremium: false }
-        ]
+        this.recommendedList = []
       } finally { this.loadingRecommended = false }
     }
   }
